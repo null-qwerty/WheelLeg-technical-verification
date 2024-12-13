@@ -1,0 +1,5 @@
+speed 4000
+device STM32F407IG
+r
+loadfile ./WheelLeg-test.elf
+q
