@@ -68,6 +68,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Motor/DM4310.cpp
     
     ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Controller/pidController.cpp
+
+    ${CMAKE_SOURCE_DIR}/Core/Src/Utils/Utils.cpp
 )
 
 # Add include paths
