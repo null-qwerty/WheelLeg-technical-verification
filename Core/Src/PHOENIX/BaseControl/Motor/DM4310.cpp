@@ -36,7 +36,7 @@ DM4310 &DM4310::init()
     txHeader.DLC = 8;
     // 写入发送帧头
     connectivity.setTxHeader(&txHeader);
-
+    // 使能报文
     connectivity.getSendBuffer()[0] = 0xff;
     connectivity.getSendBuffer()[1] = 0xff;
     connectivity.getSendBuffer()[2] = 0xff;
@@ -45,6 +45,34 @@ DM4310 &DM4310::init()
     connectivity.getSendBuffer()[5] = 0xff;
     connectivity.getSendBuffer()[6] = 0xff;
     connectivity.getSendBuffer()[7] = 0xfc;
+
+    connectivity.sendMessage();
+
+    return *this;
+}
+
+DM4310 &DM4310::deInit()
+{
+    /* 设置 CAN 标准帧标识符，报文为 CAN_ID */
+    CAN_TxHeaderTypeDef txHeader = {};
+    txHeader.StdId = this->send_id;
+    /* 帧类型：标准帧 */
+    txHeader.ExtId = 0;
+    txHeader.IDE = CAN_ID_STD;
+    txHeader.RTR = CAN_RTR_DATA;
+    /* DLC 8 字节 */
+    txHeader.DLC = 8;
+    // 写入发送帧头
+    connectivity.setTxHeader(&txHeader);
+    // 失能报文
+    connectivity.getSendBuffer()[0] = 0xff;
+    connectivity.getSendBuffer()[1] = 0xff;
+    connectivity.getSendBuffer()[2] = 0xff;
+    connectivity.getSendBuffer()[3] = 0xff;
+    connectivity.getSendBuffer()[4] = 0xff;
+    connectivity.getSendBuffer()[5] = 0xff;
+    connectivity.getSendBuffer()[6] = 0xff;
+    connectivity.getSendBuffer()[7] = 0xfd;
 
     connectivity.sendMessage();
 

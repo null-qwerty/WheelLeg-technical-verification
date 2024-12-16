@@ -46,6 +46,10 @@ public:
     ~Motor() = default;
 
     virtual Motor &init() = 0;
+
+    virtual Motor &deInit() = 0;
+
+    bool ifInitialed();
     /**
      * @brief 获取电机当前状态
      *
@@ -125,6 +129,8 @@ protected:
     Connectivity &connectivity; ///< 通信接口，定义为引用，避免拷贝
 
     int8_t clockwise = 1; ///< 旋转方向
+
+    bool initialed = false;
 
     virtual float calculateControlData() = 0;
 };

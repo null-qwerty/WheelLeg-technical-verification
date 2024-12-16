@@ -7,6 +7,11 @@ Motor::Motor(Connectivity &connectivity, uint16_t send_id, uint16_t receive_id)
 {
 }
 
+bool Motor::ifInitialed()
+{
+    return initialed;
+}
+
 Motor::MotorState &Motor::getState(void)
 {
     return state;

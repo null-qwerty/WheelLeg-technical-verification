@@ -24,6 +24,25 @@ RM3508 &RM3508::init()
     refState.toreque = 0;
     refState.temprature = 0;
 
+    initialed = true;
+
+    return *this;
+}
+
+RM3508 &RM3508::deInit()
+{
+    state.position = 0;
+    state.velocity = 0;
+    state.toreque = 0;
+    state.temprature = 0;
+
+    refState.position = 0;
+    refState.velocity = 0;
+    refState.toreque = 0;
+    refState.temprature = 0;
+
+    initialed = false;
+
     return *this;
 }
 
@@ -50,7 +69,7 @@ RM3508 &RM3508::encodeControlMessage()
     connectivity.setTxHeader(&txHeader);
 
     /* 帧格式 Data */
-    int16_t data = clockwise * calculateControlData();
+    int16_t data = clockwise * calculateControlData() * ifInitialed();
     /* 高 8 位在前，低 8 位在后 */
     connectivity.getSendBuffer()[(index - 1) * 2] = data >> 8;
     connectivity.getSendBuffer()[(index - 1) * 2 + 1] = data;

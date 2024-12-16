@@ -9,6 +9,7 @@ public:
     ~DM4310();
 
     DM4310 &init() final;
+    DM4310 &deInit() final;
 
     DM4310 &encodeControlMessage() final;
     DM4310 &decodeFeedbackMessage() final;

@@ -9,6 +9,8 @@ public:
     ~RM3508();
 
     RM3508 &init() final;
+
+    RM3508 &deInit() final;
     /**
      * @brief 设置电机目标状态，位置、速度、力矩，温度不做设置
      *
