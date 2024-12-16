@@ -23,10 +23,10 @@ void vTaskReadDbus(void *pvParameters)
         // 向轮毂控制任务发出信号量，任务之间使用 xTaskNotifyGive()
         xTaskNotifyGive(wheelControlTaskHandle);
         // 向关节控制任务发出信号量
-        if (dbus.getDBUSData().rc.s2 == 3)
-            xTaskNotifyGive(jointControlTaskHandle);
+        if (!jointInited && dbus.getDBUSData().rc.s2 == 3)
+            xTaskNotifyGive(jointInitTaskHandle);
 
-        osDelay(1);
+        osDelay(5);
     }
 
     vTaskDelete(readDbusTaskHandle);

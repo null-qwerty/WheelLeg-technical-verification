@@ -3,69 +3,64 @@
 #include "PHOENIX/BaseControl/Motor/DM4310.hpp"
 #include "cmsis_os2.h"
 #include "portmacro.h"
-#include "projdefs.h"
-#include "stm32f4xx_hal.h"
+
+void vTaskJointInit(void *pvParameters)
+{
+    while (1) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        jointInited = true;
+
+        leftFrontJoint.init();
+        leftFrontJoint.getSpeedLoopController()
+            .setPidParam(0.326, 0., 0)
+            .setOutLimit(9.8, -9.8);
+        leftFrontJoint.getAngleLoopController()
+            .setPidParam(30., 0.001, 15)
+            .setOutLimit(30, -30);
+        leftFrontJoint.getTargetState().position = 1.0;
+        osDelay(1);
+        leftBackJoint.init();
+        leftBackJoint.getSpeedLoopController()
+            .setPidParam(0.326, 0., 0)
+            .setOutLimit(9.8, -9.8);
+        leftBackJoint.getAngleLoopController()
+            .setPidParam(30., 0.001, 15)
+            .setOutLimit(30, -30);
+        leftBackJoint.getTargetState().position = 1.0;
+        osDelay(1);
+        rightFrontJoint.init();
+        osDelay(1);
+        rightBackJoint.init();
+    }
+    vTaskDelete(jointInitTaskHandle);
+}
 
 void vTaskJointControl(void *pvParameters)
 {
-    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    leftFrontJoint.init();
-    leftFrontJoint.getSpeedLoopController()
-        .setPidParam(0.326, 0., 0)
-        .setOutLimit(9.8, -9.8);
-    leftFrontJoint.getAngleLoopController()
-        .setPidParam(30., 0.001, 15)
-        .setOutLimit(30, -30);
-    leftFrontJoint.getTargetState().position = 1.0;
-    osDelay(1);
-    leftBackJoint.init();
-    osDelay(1);
-    rightFrontJoint.init();
-    osDelay(1);
-    rightBackJoint.init();
     // 定频执行任务
     TickType_t xLastWakeTime;
-    TickType_t xFrequency = pdMS_TO_TICKS(1);
+    TickType_t xFrequency = pdMS_TO_TICKS(2);
     xLastWakeTime = xTaskGetTickCount();
     while (1) {
         leftFrontJoint.encodeControlMessage();
-        if (jointConnectivity.sendMessage() != HAL_OK)
-            jointConnectivity.init();
-        // HAL_Delay(1);
-        // leftBackJoint.encodeControlMessage();
-        // if (jointConnectivity.sendMessage() != HAL_OK)
-        //     jointConnectivity.init();
-        // HAL_Delay(1);
-        // rightFrontJoint.encodeControlMessage();
-        // if (jointConnectivity.sendMessage() != HAL_OK)
-        //     jointConnectivity.init();
-        // HAL_Delay(1);
-        // rightBackJoint.encodeControlMessage();
-        // if (jointConnectivity.sendMessage() != HAL_OK)
-        //     jointConnectivity.init();
+        jointConnectivity.sendMessage();
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        leftBackJoint.encodeControlMessage();
+        jointConnectivity.sendMessage();
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        rightFrontJoint.encodeControlMessage();
+        jointConnectivity.sendMessage();
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        rightBackJoint.encodeControlMessage();
+        jointConnectivity.sendMessage();
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
     vTaskDelete(jointControlTaskHandle);
 }
 
-void vTaskJointReceive(void *pvParameters)
-{
-    while (1) {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        // clang-format off
-        if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId == leftFrontJoint.getReceiveId())
-            leftFrontJoint.decodeFeedbackMessage();
-        else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId == leftBackJoint.getReceiveId())
-            leftBackJoint.decodeFeedbackMessage();
-        else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId == rightFrontJoint.getReceiveId())
-            rightFrontJoint.decodeFeedbackMessage();
-        else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId == rightBackJoint.getReceiveId())
-            rightBackJoint.decodeFeedbackMessage();
-        // clang-format on
-    }
-    vTaskDelete(jointReceiveTaskHandle);
-}
-
+xTaskHandle jointInitTaskHandle;
+xTaskHandle jointDeinitTaskHandle;
 xTaskHandle jointControlTaskHandle;
 xTaskHandle jointReceiveTaskHandle;
 
@@ -92,3 +87,5 @@ DM4310 rightFrontJoint = DM4310(jointConnectivity, 0x06, 0x16,
 DM4310 rightBackJoint = DM4310(jointConnectivity, 0x05, 0x15,
                                    RIGHT_MOTOR_CLOCKWISE *BACK_MOTOR_CLOCKWISE);
 // clang-format on
+TickType_t tickCount;
+bool jointInited = false;

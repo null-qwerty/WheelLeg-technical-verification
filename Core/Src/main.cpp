@@ -102,11 +102,12 @@ int main(void)
     MX_I2C3_Init();
     MX_SPI1_Init();
     MX_TIM10_Init();
-    MX_TIM14_Init();
+    MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     HAL_Delay(3000);
     wheelConnectivity.init();
     jointConnectivity.init();
+    dbus.init();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -225,13 +226,12 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
              rightBackJoint.getReceiveId())
         rightBackJoint.decodeFeedbackMessage();
     // 高优先级优先，上下文切换时优先执行高优先级任务
-    // BaseType_t xHigherPriorityTaskWoken = pdTRUE;
-    // // 发送二进制信号量通知 wheelReceiveTask
-    // // 中断中需要调用 vTaskNotifyGiveFromISR()
-    // vTaskNotifyGiveFromISR(jointReceiveTaskHandle,
-    // &xHigherPriorityTaskWoken);
-    // // 切换上下文
-    // portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    // 发送二进制信号量通知 wheelReceiveTask
+    // 中断中需要调用 vTaskNotifyGiveFromISR()
+    vTaskNotifyGiveFromISR(jointControlTaskHandle, &xHigherPriorityTaskWoken);
+    // 切换上下文
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
     return;
 }

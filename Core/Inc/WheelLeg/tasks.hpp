@@ -3,6 +3,8 @@
 #include "FreeRTOS.h"
 #include "PHOENIX/BaseControl/Connectivity/CAN/CAN.hpp"
 #include "cmsis_os2.h"
+#include "portmacro.h"
+#include "stm32f4xx_hal_def.h"
 #include "task.h"
 
 #include "PHOENIX/BaseControl/Motor/RM3508.hpp"
@@ -49,16 +51,16 @@ __weak void vTaskWheelControl(void *pvParameters);
  */
 __weak void vTaskReadDbus(void *pvParameters);
 
-__weak void vTaskJointControl(void *pvParameters);
+__weak void vTaskJointInit(void *pvParameters);
 
-__weak void vTaskJointReceive(void *pvParameters);
+__weak void vTaskJointControl(void *pvParameters);
 
 extern xTaskHandle xTaskLED_GHandle;
 extern xTaskHandle wheelReceiveTaskHandle;
 extern xTaskHandle wheelControlTaskHandle;
 extern xTaskHandle readDbusTaskHandle;
+extern xTaskHandle jointInitTaskHandle;
 extern xTaskHandle jointControlTaskHandle;
-extern xTaskHandle jointReceiveTaskHandle;
 
 extern CAN_FilterTypeDef wheelCanfilter;
 extern CAN wheelConnectivity;
@@ -72,3 +74,6 @@ extern DBUS dbus;
 extern CAN_FilterTypeDef jheelCanfilter;
 extern CAN jointConnectivity;
 extern DM4310 leftFrontJoint, leftBackJoint, rightFrontJoint, rightBackJoint;
+
+extern TickType_t tickCount;
+extern bool jointInited;
