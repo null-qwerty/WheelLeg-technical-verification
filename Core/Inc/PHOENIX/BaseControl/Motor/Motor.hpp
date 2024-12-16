@@ -117,7 +117,8 @@ protected:
     uint16_t send_id = 0, receive_id = 0; ///< 发送 ID 和接收 ID
 
     MotorState state = {}; ///< 电机状态
-    MotorState refState = {}; ///< 电机目标状态
+    MotorState targetState = {}; ///< 电机目标状态
+    MotorState refState = {}; ///< 电机目标状态, 用于控制器计算
 
     pidController angleLoop, speedLoop, currentLoop; ///< pid 控制器
 

@@ -73,19 +73,17 @@ RM3508 &RM3508::decodeFeedbackMessage()
 
 float RM3508::calculateControlData()
 {
-    // // 旋转正方向
-    // refState.position *= clockwise;
-    // refState.velocity *= clockwise;
     // 位置过零点处理
-    if (refState.position - state.position > 180.0f)
-        refState.position -= 360.0f;
-    else if (refState.position - state.position < -180.0f)
-        refState.position += 360.0f;
+    if (getTargetState().position - getState().position > 180.0f)
+        getTargetState().position -= 360.0f;
+    else if (getTargetState().position - getState().position < -180.0f)
+        getTargetState().position += 360.0f;
     // 计算控制量
-    refState.toreque = speedLoop.Calculate(
-        refState.velocity +
-            angleLoop.Calculate(refState.position, state.position),
-        state.velocity);
+    refState.position = getTargetState().position;
+    refState.velocity = getTargetState().velocity +
+                        angleLoop.Calculate(refState.position, state.position);
+    refState.toreque = getTargetState().toreque +
+                       speedLoop.Calculate(refState.velocity, state.velocity);
 
     return refState.toreque;
 }

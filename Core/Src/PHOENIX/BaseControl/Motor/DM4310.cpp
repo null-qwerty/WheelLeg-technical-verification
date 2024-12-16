@@ -120,19 +120,22 @@ float DM4310::linearUint2Float(uint16_t x, float x_max, float x_min,
 float DM4310::calculateControlData()
 {
     // 位置过零点处理
-    if (refState.position - state.position > 180.0f)
-        refState.position -= 360.0f;
-    else if (refState.position - state.position < -180.0f)
-        refState.position += 360.0f;
+    if (getTargetState().position - state.position > 180.0f)
+        getTargetState().position -= 360.0f;
+    else if (getTargetState().position - state.position < -180.0f)
+        getTargetState().position += 360.0f;
 
-    // 计算控制量
     // TODO 设置限位，后续放到外部
-    if (refState.position < 0.02)
-        refState.position = 0.02;
-    if (refState.position > 1.2)
-        refState.position = 1.2;
-    refState.velocity = angleLoop.Calculate(refState.position, state.position);
-    refState.toreque = speedLoop.Calculate(refState.velocity, state.velocity);
+    if (getTargetState().position < 0.02)
+        getTargetState().position = 0.02;
+    if (getTargetState().position > 1.2)
+        getTargetState().position = 1.2;
+    // 计算控制量
+    refState.position = getTargetState().position;
+    refState.velocity = getTargetState().velocity +
+                        angleLoop.Calculate(refState.position, state.position);
+    refState.toreque = getTargetState().toreque +
+                       speedLoop.Calculate(refState.velocity, state.velocity);
 
     return refState.toreque;
 }

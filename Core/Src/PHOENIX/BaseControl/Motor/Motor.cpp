@@ -14,7 +14,7 @@ Motor::MotorState &Motor::getState(void)
 
 Motor::MotorState &Motor::getTargetState(void)
 {
-    return refState;
+    return targetState;
 }
 
 pidController &Motor::getAngleLoopController()
