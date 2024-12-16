@@ -25,6 +25,8 @@ void vTaskReadDbus(void *pvParameters)
         // 向关节控制任务发出信号量
         if (!jointInited && dbus.getDBUSData().rc.s2 == 3)
             xTaskNotifyGive(jointInitTaskHandle);
+        else if (jointInited && dbus.getDBUSData().rc.s2 == 1)
+            xTaskNotifyGive(jointDeinitTaskHandle);
 
         osDelay(5);
     }

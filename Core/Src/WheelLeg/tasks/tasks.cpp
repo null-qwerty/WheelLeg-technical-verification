@@ -15,6 +15,8 @@ void WheelLegTasksInit(void)
                 osPriorityAboveNormal, &readDbusTaskHandle);
     xTaskCreate(vTaskJointControl, "jointControlTask", 128 * 4, NULL,
                 osPriorityAboveNormal, &jointControlTaskHandle);
-    xTaskCreate(vTaskJointInit, "jointInitTask", 128 * 4, NULL,
+    xTaskCreate(vTaskJointInit, "jointInitTask", 128, NULL,
                 osPriorityAboveNormal, &jointInitTaskHandle);
+    xTaskCreate(vTaskJointDeinit, "jointDeinitTask", 128, NULL,
+                osPriorityAboveNormal, &jointDeinitTaskHandle);
 }

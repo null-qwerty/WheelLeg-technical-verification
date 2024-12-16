@@ -47,19 +47,43 @@ __weak void vTaskWheelControl(void *pvParameters);
  *
  * @param pvParameters 任务参数，未使用
  *
- * @note 以 1000 Hz 的频率读取 DBUS 数据 (osPriorityAboveNormal)
+ * @note 以 200 Hz 的频率读取 DBUS 数据 (osPriorityAboveNormal)
  */
 __weak void vTaskReadDbus(void *pvParameters);
-
+/**
+ * @brief 关节电机使能
+ *
+ * @param pvParameters 任务参数，未使用
+ * @note 通过 DBUS 发送的信号量触发 (osPriorityAboveNormal)
+ */
 __weak void vTaskJointInit(void *pvParameters);
+/**
+ * @brief 关节电机失能
+ *
+ * @param pvParameters 任务参数，未使用
+ * @note 通过 DBUS 发送的信号量触发 (osPriorityAboveNormal)
+ */
+__weak void vTaskJointDeinit(void *pvParameters);
 
+/**
+ * @brief 向关节电机发送控制信号
+ *
+ * @param pvParameters 任务参数，未使用
+ * @note DM4310 采用一问一答机制，
+ * 在发送一电机的控制信号后会触发中断处理接收到的反馈信息。 理论频率 500Hz。
+ * (osPriorityAboveNormal)
+ */
 __weak void vTaskJointControl(void *pvParameters);
 
 extern xTaskHandle xTaskLED_GHandle;
+
 extern xTaskHandle wheelReceiveTaskHandle;
 extern xTaskHandle wheelControlTaskHandle;
+
 extern xTaskHandle readDbusTaskHandle;
+
 extern xTaskHandle jointInitTaskHandle;
+extern xTaskHandle jointDeinitTaskHandle;
 extern xTaskHandle jointControlTaskHandle;
 
 extern CAN_FilterTypeDef wheelCanfilter;

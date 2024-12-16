@@ -3,6 +3,7 @@
 #include "PHOENIX/BaseControl/Motor/DM4310.hpp"
 #include "cmsis_os2.h"
 #include "portmacro.h"
+#include "projdefs.h"
 
 void vTaskJointInit(void *pvParameters)
 {
@@ -13,26 +14,64 @@ void vTaskJointInit(void *pvParameters)
         leftFrontJoint.init();
         leftFrontJoint.getSpeedLoopController()
             .setPidParam(0.326, 0., 0)
-            .setOutLimit(9.8, -9.8);
+            .setOutLimit(9.8, -9.8)
+            .init();
         leftFrontJoint.getAngleLoopController()
             .setPidParam(30., 0.001, 15)
-            .setOutLimit(30, -30);
+            .setOutLimit(30, -30)
+            .init();
         leftFrontJoint.getTargetState().position = 1.0;
         osDelay(1);
         leftBackJoint.init();
         leftBackJoint.getSpeedLoopController()
             .setPidParam(0.326, 0., 0)
-            .setOutLimit(9.8, -9.8);
+            .setOutLimit(9.8, -9.8)
+            .init();
         leftBackJoint.getAngleLoopController()
             .setPidParam(30., 0.001, 15)
-            .setOutLimit(30, -30);
+            .setOutLimit(30, -30)
+            .init();
         leftBackJoint.getTargetState().position = 1.0;
         osDelay(1);
         rightFrontJoint.init();
+        rightFrontJoint.getSpeedLoopController()
+            .setPidParam(0.326, 0., 0)
+            .setOutLimit(9.8, -9.8)
+            .init();
+        rightFrontJoint.getAngleLoopController()
+            .setPidParam(30., 0.001, 15)
+            .setOutLimit(30, -30)
+            .init();
+        rightFrontJoint.getTargetState().position = 1.0;
         osDelay(1);
         rightBackJoint.init();
+        rightBackJoint.getSpeedLoopController()
+            .setPidParam(0.326, 0., 0)
+            .setOutLimit(9.8, -9.8)
+            .init();
+        rightBackJoint.getAngleLoopController()
+            .setPidParam(30., 0.001, 15)
+            .setOutLimit(30, -30)
+            .init();
+        rightBackJoint.getTargetState().position = 1.0;
     }
     vTaskDelete(jointInitTaskHandle);
+}
+
+void vTaskJointDeinit(void *pvParameters)
+{
+    while (1) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        jointInited = false;
+        leftFrontJoint.deInit();
+        osDelay(1);
+        leftBackJoint.deInit();
+        osDelay(1);
+        rightFrontJoint.deInit();
+        osDelay(1);
+        rightBackJoint.deInit();
+    }
+    vTaskDelete(jointDeinitTaskHandle);
 }
 
 void vTaskJointControl(void *pvParameters)
@@ -44,16 +83,16 @@ void vTaskJointControl(void *pvParameters)
     while (1) {
         leftFrontJoint.encodeControlMessage();
         jointConnectivity.sendMessage();
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        ulTaskNotifyTake(pdTRUE, 5);
         leftBackJoint.encodeControlMessage();
         jointConnectivity.sendMessage();
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        ulTaskNotifyTake(pdTRUE, 5);
         rightFrontJoint.encodeControlMessage();
         jointConnectivity.sendMessage();
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        ulTaskNotifyTake(pdTRUE, 5);
         rightBackJoint.encodeControlMessage();
         jointConnectivity.sendMessage();
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        ulTaskNotifyTake(pdTRUE, 5);
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
     vTaskDelete(jointControlTaskHandle);
@@ -62,7 +101,6 @@ void vTaskJointControl(void *pvParameters)
 xTaskHandle jointInitTaskHandle;
 xTaskHandle jointDeinitTaskHandle;
 xTaskHandle jointControlTaskHandle;
-xTaskHandle jointReceiveTaskHandle;
 
 CAN_FilterTypeDef jointCanFilter = { .FilterIdHigh = 0x0000,
                                      .FilterIdLow = 0x0000,
@@ -87,5 +125,4 @@ DM4310 rightFrontJoint = DM4310(jointConnectivity, 0x06, 0x16,
 DM4310 rightBackJoint = DM4310(jointConnectivity, 0x05, 0x15,
                                    RIGHT_MOTOR_CLOCKWISE *BACK_MOTOR_CLOCKWISE);
 // clang-format on
-TickType_t tickCount;
 bool jointInited = false;
