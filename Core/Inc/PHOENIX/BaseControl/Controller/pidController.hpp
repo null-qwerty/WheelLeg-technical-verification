@@ -9,6 +9,7 @@
  * pidController::pidController() 无参数构造函数
  * pidController::pidController(float,float,float,float,float,float,float,float)
  * 有参数构造函数，设置 Kp, Ki, Kd, Umax, Umin, Kr, Km, Kiae
+ * pidController::init() 初始化，将中间变量赋 0
  *
  * pidController::setFilter(float,float) 设置微分低通滤波器
  * pidController::setPidParam(float,float,float,float,float) 设置 pid 参数
@@ -47,6 +48,8 @@ public:
      * @brief PID 控制器析构函数
      */
     ~pidController() = default;
+
+    pidController &init();
     /**
      * @brief PID 控制器更新
      *

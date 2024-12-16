@@ -37,6 +37,20 @@ pidController::pidController(float Kp, float Ki, float Kd, float Umax,
     Out = 0.0;
 }
 
+pidController &pidController::init()
+{
+    up = 0.0;
+    ui = 0.0;
+    ud = 0.0;
+    v1 = 0.0;
+    i1 = 0.0;
+    d1 = 0.0;
+    d2 = 0.0;
+    w1 = 1;
+    Out = 0.0;
+
+    return *this;
+}
 float pidController::Calculate(float Ref, float Fbk)
 {
     // clang-format off
