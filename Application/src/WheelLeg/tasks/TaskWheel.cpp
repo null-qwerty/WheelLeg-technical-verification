@@ -27,10 +27,10 @@ void vTaskWheelControl(void *pvParameters)
     leftWheel.init();
     rightWheel.init();
     leftWheel.getSpeedLoopController()
-        .setPidParam(5., 0.2, 0.7)
+        .setPidParam(20., 0.1, 1.2)
         .setOutLimit(14000, -14000);
     rightWheel.getSpeedLoopController()
-        .setPidParam(5., 0.2, 0.7)
+        .setPidParam(20., 0.1, 1.2)
         .setOutLimit(14000, -14000);
 
     while (1) {
