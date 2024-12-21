@@ -50,26 +50,10 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add sources to executable
+FILE(GLOB_RECURSE USER_SOURCES ${CMAKE_SOURCE_DIR}/Application/src/*.*)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    ${CMAKE_SOURCE_DIR}/Application/src/WheelLeg/tasks/tasks.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/WheelLeg/tasks/TaskLed.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/WheelLeg/tasks/TaskWheel.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/WheelLeg/tasks/TaskReadDbus.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/WheelLeg/tasks/TaskJoint.cpp
-
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Connectivity/Connectivity.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Connectivity/CAN/CAN.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Connectivity/UART/UART.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Connectivity/UART/DBUS.cpp
-    
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Motor/Motor.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Motor/RM3508.cpp
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Motor/DM4310.cpp
-    
-    ${CMAKE_SOURCE_DIR}/Application/src/PHOENIX/BaseControl/Controller/pidController.cpp
-
-    ${CMAKE_SOURCE_DIR}/Application/src/Utils/Utils.cpp
+    ${USER_SOURCES}
 )
 
 # Add include paths
