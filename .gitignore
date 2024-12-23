@@ -1,2 +1,12 @@
 build/
 debug/
+
+Middlewares/
+Drivers/STM32F4xx_HAL_Driver/
+Drivers/CMSIS/Device/
+Drivers/CMSIS/Include/
+
+stm32_lock.h
+newlib_lock_glue.c
+startup_stm32f407xx.s
+STM32F407IGHx_FLASH.ld
