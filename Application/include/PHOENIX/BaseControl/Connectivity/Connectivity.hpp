@@ -14,6 +14,7 @@
  *
  * Connectivity::sendMessage() 发送消息，纯虚函数
  * Connectivity::receiveMessage() 接收消息，纯虚函数
+ * Connectivity::sendReceiveMessage() 发送并接收消息，纯虚函数
  */
 class Connectivity {
 public:
@@ -50,6 +51,12 @@ public:
      * @return uint8_t 状态 state
      */
     virtual uint8_t receiveMessage() = 0;
+    /**
+     * @brief 发送并接收消息
+     *
+     * @return uint8_t 状态 state
+     */
+    virtual uint8_t sendReceiveMessage() = 0;
 
     Connectivity &operator=(const Connectivity &other);
 };

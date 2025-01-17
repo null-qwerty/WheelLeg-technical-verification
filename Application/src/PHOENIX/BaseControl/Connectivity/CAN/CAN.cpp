@@ -52,6 +52,11 @@ uint8_t CAN::receiveMessage(void)
                                 &receiveFrame.header, receiveFrame.data);
 }
 
+uint8_t CAN::sendReceiveMessage(void)
+{
+    return sendMessage() << 4 | receiveMessage();
+}
+
 CAN_FilterTypeDef &CAN::getFilter()
 {
     return this->filter;

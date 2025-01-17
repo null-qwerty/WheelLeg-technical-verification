@@ -37,3 +37,8 @@ uint8_t UART::receiveMessage()
     return HAL_UART_Receive(huart, xReceiveFrame.data, xReceiveFrame.length,
                             20);
 }
+
+uint8_t UART::sendReceiveMessage()
+{
+    return sendMessage() << 4 | receiveMessage();
+}

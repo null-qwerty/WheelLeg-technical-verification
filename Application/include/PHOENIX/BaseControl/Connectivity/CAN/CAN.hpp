@@ -29,6 +29,8 @@ public:
     virtual void *getReceiveFrame() override;
     virtual uint8_t sendMessage() override;
     virtual uint8_t receiveMessage() override;
+    virtual uint8_t sendReceiveMessage() override;
+
     CAN_FilterTypeDef &getFilter();
     /**
      * @brief 重载赋值运算符为浅拷贝
