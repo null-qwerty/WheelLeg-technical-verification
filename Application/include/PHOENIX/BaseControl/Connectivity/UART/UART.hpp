@@ -1,7 +1,5 @@
 #pragma once
 
-#include "main.h"
-
 #include "PHOENIX/BaseControl/Connectivity/Connectivity.hpp"
 
 class UART : public Connectivity {

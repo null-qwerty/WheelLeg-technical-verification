@@ -1,5 +1,4 @@
 #include "PHOENIX/BaseControl/Connectivity/UART/UART.hpp"
-#include "stm32f4xx_hal_uart.h"
 
 UART::UART(UART_HandleTypeDef *huart)
     : huart(huart)

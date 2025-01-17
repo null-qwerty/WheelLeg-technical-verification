@@ -1,7 +1,6 @@
 #pragma once
 
 #include "can.h"
-#include "stm32f4xx_hal_can.h"
 
 #include "PHOENIX/BaseControl/Connectivity/Connectivity.hpp"
 
