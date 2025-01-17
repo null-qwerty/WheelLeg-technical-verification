@@ -17,7 +17,6 @@ target_compile_definitions(stm32cubemx INTERFACE
 
 target_include_directories(stm32cubemx INTERFACE
     ../../Core/Inc
-    ../../Application/include
     ../../Drivers/STM32F4xx_HAL_Driver/Inc
     ../../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
     ../../Middlewares/Third_Party/FreeRTOS/Source/include
@@ -28,7 +27,6 @@ target_include_directories(stm32cubemx INTERFACE
     ${CMSISDSP}/Include
     ${CMSISDSP}/PrivateInclude
     ${CMSISDSP}/Include/dsp
-    /usr/arm-linux-gnueabi/include
 )
 
 file(GLOB_RECURSE CMSISDSP_SOURCES ${CMSISDSP}/Source/*.*)
