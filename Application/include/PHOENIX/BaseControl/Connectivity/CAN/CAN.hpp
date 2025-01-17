@@ -12,14 +12,23 @@
  */
 class CAN : public Connectivity {
 public:
+    typedef struct xReceptionFrame_s {
+        CAN_RxHeaderTypeDef header;
+        uint8_t data[8];
+    } xReceptionFrame_t;
+    typedef struct xTransmissionFrame_s {
+        CAN_TxHeaderTypeDef header;
+        uint8_t data[8];
+    } xTransmissionFrame_t;
+
     CAN(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef &filter);
     ~CAN();
 
-    CAN &init() override;
-    CAN &setTxHeader(void *txHeader) override;
-    void *getRxHeader() override;
-    uint8_t sendMessage() override;
-    uint8_t receiveMessage() override;
+    virtual CAN &init() override;
+    virtual void *getSendFrame() override;
+    virtual void *getReceiveFrame() override;
+    virtual uint8_t sendMessage() override;
+    virtual uint8_t receiveMessage() override;
     CAN_FilterTypeDef &getFilter();
     /**
      * @brief 重载赋值运算符为浅拷贝
@@ -31,12 +40,9 @@ public:
 
 private:
     CAN_HandleTypeDef *hcan = nullptr;
-    CAN_TxHeaderTypeDef can_tx = {};
-    CAN_RxHeaderTypeDef can_rx = {};
     uint32_t can_tx_mailbox = 0;
-
     CAN_FilterTypeDef filter = {};
 
-    uint8_t dataSendBuffer[8] = {};
-    uint8_t dataReceiveBuffer[8] = {};
+    xReceptionFrame_t receiveFrame = {};
+    xTransmissionFrame_t sendFrame = {};
 };

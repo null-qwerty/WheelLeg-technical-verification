@@ -9,10 +9,6 @@ CAN::CAN(CAN_HandleTypeDef *hcan, CAN_FilterTypeDef &filter)
     , hcan(hcan)
     , filter(filter)
 {
-    this->pxRxHeader = &can_rx;
-    this->pxTxHeader = &can_tx;
-    this->pReceiveBuffer = dataReceiveBuffer;
-    this->pSendBuffer = dataSendBuffer;
 }
 
 CAN::~CAN()
@@ -34,15 +30,26 @@ CAN &CAN::init()
     return *this;
 }
 
-CAN &CAN::setTxHeader(void *txHeader)
+void *CAN::getSendFrame()
 {
-    can_tx = *((CAN_TxHeaderTypeDef *)txHeader);
-    return *this;
+    return &sendFrame;
 }
 
-void *CAN::getRxHeader(void)
+void *CAN::getReceiveFrame()
 {
-    return &can_rx;
+    return &receiveFrame;
+}
+
+uint8_t CAN::sendMessage(void)
+{
+    return HAL_CAN_AddTxMessage(hcan, &sendFrame.header, sendFrame.data,
+                                &can_tx_mailbox);
+}
+
+uint8_t CAN::receiveMessage(void)
+{
+    return HAL_CAN_GetRxMessage(hcan, filter.FilterFIFOAssignment,
+                                &receiveFrame.header, receiveFrame.data);
 }
 
 CAN_FilterTypeDef &CAN::getFilter()
@@ -50,22 +57,9 @@ CAN_FilterTypeDef &CAN::getFilter()
     return this->filter;
 }
 
-uint8_t CAN::sendMessage(void)
-{
-    return HAL_CAN_AddTxMessage(hcan, &can_tx, dataSendBuffer, &can_tx_mailbox);
-}
-
-uint8_t CAN::receiveMessage(void)
-{
-    return HAL_CAN_GetRxMessage(hcan, filter.FilterFIFOAssignment, &can_rx,
-                                dataReceiveBuffer);
-}
-
 CAN &CAN::operator=(const CAN &other)
 {
     hcan = other.hcan;
-    can_tx = other.can_tx;
-    can_rx = other.can_rx;
     can_tx_mailbox = other.can_tx_mailbox;
     filter = other.filter;
 

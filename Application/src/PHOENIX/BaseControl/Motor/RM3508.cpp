@@ -1,4 +1,5 @@
 #include "PHOENIX/BaseControl/Motor/RM3508.hpp"
+#include "PHOENIX/BaseControl/Connectivity/Connectivity.hpp"
 #include "PHOENIX/BaseControl/Motor/Motor.hpp"
 #include "stm32f4xx_hal_can.h"
 
@@ -52,34 +53,34 @@ RM3508 &RM3508::encodeControlMessage()
     /* 若 id 为 1 ～ 4, 标识符 0x200 */
     /* 若 id 为 5 ～ 8, 标识符 0x1FF */
     uint16_t index = send_id;
-    CAN_TxHeaderTypeDef txHeader = {};
+    CAN::xTransmissionFrame_t *sendFrame =
+        (CAN::xTransmissionFrame_t *)connectivity.getSendFrame();
     if (index < 5) {
-        txHeader.StdId = 0x200;
+        sendFrame->header.StdId = 0x200;
     } else {
-        txHeader.StdId = 0x1ff;
+        sendFrame->header.StdId = 0x1ff;
         index -= 4; // 5 -> 1, 6 -> 2, 7 -> 3, 8 -> 4
     }
     /* 帧类型：标准帧 */
-    txHeader.ExtId = 0;
-    txHeader.IDE = CAN_ID_STD;
-    txHeader.RTR = CAN_RTR_DATA;
+    sendFrame->header.ExtId = 0;
+    sendFrame->header.IDE = CAN_ID_STD;
+    sendFrame->header.RTR = CAN_RTR_DATA;
     /* DLC 8 字节 */
-    txHeader.DLC = 8;
-    // 写入发送帧头
-    connectivity.setTxHeader(&txHeader);
+    sendFrame->header.DLC = 8;
 
     /* 帧格式 Data */
     int16_t data = clockwise * calculateControlData() * ifInitialed();
     /* 高 8 位在前，低 8 位在后 */
-    connectivity.getSendBuffer()[(index - 1) * 2] = data >> 8;
-    connectivity.getSendBuffer()[(index - 1) * 2 + 1] = data;
+    sendFrame->data[(index - 1) * 2] = data >> 8;
+    sendFrame->data[(index - 1) * 2 + 1] = data;
 
     return *this;
 }
 
 RM3508 &RM3508::decodeFeedbackMessage()
 {
-    uint8_t *data = connectivity.getReceiveBuffer();
+    uint8_t *data =
+        ((CAN::xReceptionFrame_t *)(connectivity.getReceiveFrame()))->data;
 
     state.position =
         1.0 * clockwise * (data[0] << 8 | data[1]) / MAX_POISION_DATA * 360.0f;

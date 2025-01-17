@@ -6,6 +6,10 @@
 
 class UART : public Connectivity {
 public:
+    typedef struct xUARTFrame_s {
+        uint8_t *data;
+        uint16_t length;
+    } xUARTFrame_t;
     /**
      * @brief UART 构造函数
      *
@@ -18,32 +22,13 @@ public:
      */
     ~UART(void);
 
-    /**
-     * @brief 发送数据
-     *
-     * @return status
-     */
-    uint8_t sendMessage() override;
-
-    /**
-     * @brief 接收数据
-     *
-     * @return status
-     */
-    uint8_t receiveMessage() override;
-
-    UART &init() override;
-
-    UART &setTxHeader(void *txHeader) override
-    {
-        pxTxHeader = txHeader;
-        return *this;
-    };
-    void *getRxHeader() override
-    {
-        return nullptr;
-    };
+    virtual UART &init() override;
+    virtual void *getReceiveFrame() override;
+    virtual void *getSendFrame() override;
+    virtual uint8_t sendMessage() override;
+    virtual uint8_t receiveMessage() override;
 
 private:
     UART_HandleTypeDef *huart = nullptr;
+    xUARTFrame_t xReceiveFrame, xSendFrame;
 };

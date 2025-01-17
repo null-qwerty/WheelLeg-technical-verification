@@ -3,8 +3,8 @@
 DBUS::DBUS(UART_HandleTypeDef *huart)
     : UART(huart)
 {
-    this->receiveBufferSize = DBUS_BUFFER_SIZE;
-    this->pReceiveBuffer = dbusBuffer;
+    ((xUARTFrame_t *)this->getReceiveFrame())->data = dbusBuffer;
+    ((xUARTFrame_t *)this->getReceiveFrame())->length = DBUS_BUFFER_SIZE;
 }
 
 void DBUS::receiveDBUSMessage()

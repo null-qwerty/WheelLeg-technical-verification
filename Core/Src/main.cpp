@@ -32,7 +32,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "WheelLeg/tasks.hpp"
-#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -184,9 +183,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     wheelConnectivity.receiveMessage();
     // 判断接收的消息是否合法
     // clang-format off
-    if (((CAN_RxHeaderTypeDef*)(wheelConnectivity.getRxHeader()))->RTR != CAN_RTR_DATA ||
-        ((CAN_RxHeaderTypeDef*)(wheelConnectivity.getRxHeader()))->IDE != CAN_ID_STD ||
-        ((CAN_RxHeaderTypeDef*)(wheelConnectivity.getRxHeader()))->DLC != 8) {
+    if (((CAN::xReceptionFrame_t*)(wheelConnectivity.getReceiveFrame()))->header.RTR != CAN_RTR_DATA ||
+        ((CAN::xReceptionFrame_t*)(wheelConnectivity.getReceiveFrame()))->header.IDE != CAN_ID_STD ||
+        ((CAN::xReceptionFrame_t*)(wheelConnectivity.getReceiveFrame()))->header.DLC != 8) {
         return;
     }
     // clang-format on
@@ -208,23 +207,23 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
     jointConnectivity.receiveMessage();
     // 判断接收的消息是否合法
     // clang-format off
-    if (((CAN_RxHeaderTypeDef*)(jointConnectivity.getRxHeader()))->RTR != CAN_RTR_DATA ||
-        ((CAN_RxHeaderTypeDef*)(jointConnectivity.getRxHeader()))->IDE != CAN_ID_STD ||
-        ((CAN_RxHeaderTypeDef*)(jointConnectivity.getRxHeader()))->DLC != 8) {
+    if (((CAN::xReceptionFrame_t*)(jointConnectivity.getReceiveFrame()))->header.RTR != CAN_RTR_DATA ||
+        ((CAN::xReceptionFrame_t*)(jointConnectivity.getReceiveFrame()))->header.IDE != CAN_ID_STD ||
+        ((CAN::xReceptionFrame_t*)(jointConnectivity.getReceiveFrame()))->header.DLC != 8) {
         return;
     }
     // clang-format on
-    if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-        leftFrontJoint.getReceiveId())
+    if (((CAN::xReceptionFrame_t *)jointConnectivity.getReceiveFrame())
+            ->header.StdId == leftFrontJoint.getReceiveId())
         leftFrontJoint.decodeFeedbackMessage();
-    else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-             leftBackJoint.getReceiveId())
+    else if (((CAN::xReceptionFrame_t *)jointConnectivity.getReceiveFrame())
+                 ->header.StdId == leftBackJoint.getReceiveId())
         leftBackJoint.decodeFeedbackMessage();
-    else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-             rightFrontJoint.getReceiveId())
+    else if (((CAN::xReceptionFrame_t *)jointConnectivity.getReceiveFrame())
+                 ->header.StdId == rightFrontJoint.getReceiveId())
         rightFrontJoint.decodeFeedbackMessage();
-    else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-             rightBackJoint.getReceiveId())
+    else if (((CAN::xReceptionFrame_t *)jointConnectivity.getReceiveFrame())
+                 ->header.StdId == rightBackJoint.getReceiveId())
         rightBackJoint.decodeFeedbackMessage();
     // 高优先级优先，上下文切换时优先执行高优先级任务
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;

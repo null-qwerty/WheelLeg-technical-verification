@@ -11,9 +11,9 @@ void vTaskWheelReceive(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         // 解析 CAN 消息帧
         // clang-format off
-        if (((CAN_RxHeaderTypeDef*)wheelConnectivity.getRxHeader())->StdId == leftWheel.getReceiveId()) {
+        if (((CAN::xReceptionFrame_t*)wheelConnectivity.getReceiveFrame())->header.StdId == leftWheel.getReceiveId()) {
             leftWheel.decodeFeedbackMessage();
-        } else if (((CAN_RxHeaderTypeDef*)wheelConnectivity.getRxHeader())->StdId == rightWheel.getReceiveId()) {
+        } else if (((CAN::xReceptionFrame_t*)wheelConnectivity.getReceiveFrame())->header.StdId == rightWheel.getReceiveId()) {
             rightWheel.decodeFeedbackMessage();
         }
         // clang-format on

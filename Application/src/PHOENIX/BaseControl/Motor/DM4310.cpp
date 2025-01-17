@@ -26,25 +26,24 @@ DM4310 &DM4310::init()
     state.temprature = 0;
 
     /* 设置 CAN 标准帧标识符，报文为 CAN_ID */
-    CAN_TxHeaderTypeDef txHeader = {};
-    txHeader.StdId = this->send_id;
+    CAN::xTransmissionFrame_t *sendFrame =
+        (CAN::xTransmissionFrame_t *)connectivity.getSendFrame();
+    sendFrame->header.StdId = this->send_id;
     /* 帧类型：标准帧 */
-    txHeader.ExtId = 0;
-    txHeader.IDE = CAN_ID_STD;
-    txHeader.RTR = CAN_RTR_DATA;
+    sendFrame->header.ExtId = 0;
+    sendFrame->header.IDE = CAN_ID_STD;
+    sendFrame->header.RTR = CAN_RTR_DATA;
     /* DLC 8 字节 */
-    txHeader.DLC = 8;
-    // 写入发送帧头
-    connectivity.setTxHeader(&txHeader);
+    sendFrame->header.DLC = 8;
     // 使能报文
-    connectivity.getSendBuffer()[0] = 0xff;
-    connectivity.getSendBuffer()[1] = 0xff;
-    connectivity.getSendBuffer()[2] = 0xff;
-    connectivity.getSendBuffer()[3] = 0xff;
-    connectivity.getSendBuffer()[4] = 0xff;
-    connectivity.getSendBuffer()[5] = 0xff;
-    connectivity.getSendBuffer()[6] = 0xff;
-    connectivity.getSendBuffer()[7] = 0xfc;
+    sendFrame->data[0] = 0xff;
+    sendFrame->data[1] = 0xff;
+    sendFrame->data[2] = 0xff;
+    sendFrame->data[3] = 0xff;
+    sendFrame->data[4] = 0xff;
+    sendFrame->data[5] = 0xff;
+    sendFrame->data[6] = 0xff;
+    sendFrame->data[7] = 0xfc;
 
     connectivity.sendMessage();
 
@@ -54,25 +53,24 @@ DM4310 &DM4310::init()
 DM4310 &DM4310::deInit()
 {
     /* 设置 CAN 标准帧标识符，报文为 CAN_ID */
-    CAN_TxHeaderTypeDef txHeader = {};
-    txHeader.StdId = this->send_id;
+    CAN::xTransmissionFrame_t *sendFrame =
+        (CAN::xTransmissionFrame_t *)connectivity.getSendFrame();
+    sendFrame->header.StdId = this->send_id;
     /* 帧类型：标准帧 */
-    txHeader.ExtId = 0;
-    txHeader.IDE = CAN_ID_STD;
-    txHeader.RTR = CAN_RTR_DATA;
+    sendFrame->header.ExtId = 0;
+    sendFrame->header.IDE = CAN_ID_STD;
+    sendFrame->header.RTR = CAN_RTR_DATA;
     /* DLC 8 字节 */
-    txHeader.DLC = 8;
-    // 写入发送帧头
-    connectivity.setTxHeader(&txHeader);
+    sendFrame->header.DLC = 8;
     // 失能报文
-    connectivity.getSendBuffer()[0] = 0xff;
-    connectivity.getSendBuffer()[1] = 0xff;
-    connectivity.getSendBuffer()[2] = 0xff;
-    connectivity.getSendBuffer()[3] = 0xff;
-    connectivity.getSendBuffer()[4] = 0xff;
-    connectivity.getSendBuffer()[5] = 0xff;
-    connectivity.getSendBuffer()[6] = 0xff;
-    connectivity.getSendBuffer()[7] = 0xfd;
+    sendFrame->data[0] = 0xff;
+    sendFrame->data[1] = 0xff;
+    sendFrame->data[2] = 0xff;
+    sendFrame->data[3] = 0xff;
+    sendFrame->data[4] = 0xff;
+    sendFrame->data[5] = 0xff;
+    sendFrame->data[6] = 0xff;
+    sendFrame->data[7] = 0xfd;
 
     connectivity.sendMessage();
 
@@ -81,36 +79,36 @@ DM4310 &DM4310::deInit()
 
 DM4310 &DM4310::encodeControlMessage()
 {
-    /* 设置 CAN 标准帧标识符 */
-    CAN_TxHeaderTypeDef txHeader = {};
-    txHeader.StdId = this->send_id;
+    /* 设置 CAN 标准帧标识符，报文为 CAN_ID */
+    CAN::xTransmissionFrame_t *sendFrame =
+        (CAN::xTransmissionFrame_t *)connectivity.getSendFrame();
+    sendFrame->header.StdId = this->send_id;
     /* 帧类型：标准帧 */
-    txHeader.ExtId = 0;
-    txHeader.IDE = CAN_ID_STD;
-    txHeader.RTR = CAN_RTR_DATA;
+    sendFrame->header.ExtId = 0;
+    sendFrame->header.IDE = CAN_ID_STD;
+    sendFrame->header.RTR = CAN_RTR_DATA;
     /* DLC 8 字节 */
-    txHeader.DLC = 8;
-    // 写入发送帧头
-    connectivity.setTxHeader(&txHeader);
+    sendFrame->header.DLC = 8;
 
     uint16_t data = linearFloat2Uint(clockwise * calculateControlData(),
                                      DM4310_MAX_TAU, -DM4310_MAX_TAU, 12);
 
-    connectivity.getSendBuffer()[0] = 0x0000;
-    connectivity.getSendBuffer()[1] = 0x0000;
-    connectivity.getSendBuffer()[2] = 0x0000;
-    connectivity.getSendBuffer()[3] = 0x0000;
-    connectivity.getSendBuffer()[4] = 0x0000;
-    connectivity.getSendBuffer()[5] = 0x0000;
-    connectivity.getSendBuffer()[6] = 0x0000 | (data >> 8);
-    connectivity.getSendBuffer()[7] = 0x0000 | (data & 0x00ff);
+    sendFrame->data[0] = 0x0000;
+    sendFrame->data[1] = 0x0000;
+    sendFrame->data[2] = 0x0000;
+    sendFrame->data[3] = 0x0000;
+    sendFrame->data[4] = 0x0000;
+    sendFrame->data[5] = 0x0000;
+    sendFrame->data[6] = 0x0000 | (data >> 8);
+    sendFrame->data[7] = 0x0000 | (data & 0x00ff);
 
     return *this;
 }
 
 DM4310 &DM4310::decodeFeedbackMessage()
 {
-    uint8_t *data = connectivity.getReceiveBuffer();
+    uint8_t *data =
+        ((CAN::xReceptionFrame_t *)(connectivity.getReceiveFrame()))->data;
     auto temp_p =
         clockwise *
         linearUint2Float((((uint16_t)data[1] << 8) | data[2]), PI, -PI, 16);
