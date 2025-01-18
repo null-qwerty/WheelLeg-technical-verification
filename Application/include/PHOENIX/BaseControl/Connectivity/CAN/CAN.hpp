@@ -26,6 +26,7 @@ public:
     virtual CAN &init() override;
     virtual void *getSendFrame() override;
     virtual void *getReceiveFrame() override;
+    virtual uint8_t getState() override;
     virtual uint8_t sendMessage() override;
     virtual uint8_t receiveMessage() override;
     virtual uint8_t sendReceiveMessage() override;

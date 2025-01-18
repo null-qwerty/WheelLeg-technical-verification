@@ -26,6 +26,11 @@ void *UART::getSendFrame()
     return &xSendFrame;
 }
 
+uint8_t UART::getState()
+{
+    return HAL_UART_GetState(huart);
+}
+
 uint8_t UART::sendMessage()
 {
     return HAL_UART_Transmit(huart, xSendFrame.data, xSendFrame.length, 20);

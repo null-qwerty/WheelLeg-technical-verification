@@ -24,6 +24,11 @@ void *SPI::getSendFrame()
     return &xSendFrame;
 }
 
+uint8_t SPI::getState()
+{
+    return HAL_SPI_GetState(hspi);
+}
+
 uint8_t SPI::sendMessage()
 {
     return HAL_SPI_Transmit(hspi, xSendFrame.data, xSendFrame.length,

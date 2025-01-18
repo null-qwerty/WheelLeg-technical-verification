@@ -40,6 +40,11 @@ void *CAN::getReceiveFrame()
     return &receiveFrame;
 }
 
+uint8_t CAN::getState()
+{
+    return HAL_CAN_GetState(hcan);
+}
+
 uint8_t CAN::sendMessage(void)
 {
     return HAL_CAN_AddTxMessage(hcan, &sendFrame.header, sendFrame.data,

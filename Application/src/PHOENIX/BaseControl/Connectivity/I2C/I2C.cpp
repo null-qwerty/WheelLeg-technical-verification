@@ -28,6 +28,11 @@ void *I2C::getSendFrame()
     return &xSendFrame;
 }
 
+uint8_t I2C::getState()
+{
+    return HAL_I2C_GetState(hi2c);
+}
+
 uint8_t I2C::sendMessage()
 {
     if (isMaster)

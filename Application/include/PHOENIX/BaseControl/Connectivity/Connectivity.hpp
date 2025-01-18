@@ -11,6 +11,7 @@
 
  * Connectivity::getReceiveFrame() 获取接收帧缓冲区，纯虚函数
  * Connectivity::getSendFrame() 获取发送帧缓冲区，纯虚函数
+ * Connectivity::getState() 获取状态，纯虚函数
  *
  * Connectivity::sendMessage() 发送消息，纯虚函数
  * Connectivity::receiveMessage() 接收消息，纯虚函数
@@ -39,6 +40,12 @@ public:
      * @return void* 结构指针
      */
     virtual void *getSendFrame() = 0;
+    /**
+     * @brief 获取状态
+     *
+     * @return uint8_t 状态 state
+     */
+    virtual uint8_t getState() = 0;
     /**
      * @brief 发送消息
      *
