@@ -8,24 +8,35 @@ public:
     Matrix();
     Matrix(const float *data);
     Matrix(const Matrix<Rows, Cols> &other);
+    Matrix(const Matrix<Rows, Cols> &&other);
     ~Matrix();
 
+    Matrix<Rows, Cols> operator=(Matrix<Rows, Cols> other);
     Matrix<Rows, Cols> &operator=(const Matrix<Rows, Cols> &other);
+    Matrix<Rows, Cols> &operator=(const float *data);
+
     Matrix<Rows, Cols> operator+(const Matrix<Rows, Cols> &other) const;
     Matrix<Rows, Cols> operator-(const Matrix<Rows, Cols> &other) const;
-    Matrix<Rows, Cols> operator*(const Matrix<Rows, Cols> &other) const;
+    // Matrix<Rows, Cols> operator*(const Matrix<Rows, Cols> &other) const;
+    template <int resCols>
+    Matrix<Rows, resCols> operator*(const Matrix<Cols, resCols> &other) const;
     Matrix<Rows, Cols> operator*(const float &scalar) const;
+    friend Matrix<Rows, Cols> operator*(const float &scalar,
+                                        const Matrix<Rows, Cols> &matrix)
+    {
+        return matrix * scalar;
+    }
     Matrix<Rows, Cols> operator/(const float &scalar) const;
     Matrix<Rows, Cols> operator-() const;
     Matrix<Rows, Cols> operator+() const;
     Matrix<Rows, Cols> &operator~() const;
     Matrix<Rows, Cols> &operator+=(const Matrix<Rows, Cols> &other);
     Matrix<Rows, Cols> &operator-=(const Matrix<Rows, Cols> &other);
-    Matrix<Rows, Cols> &operator*=(const Matrix<Rows, Cols> &other);
     Matrix<Rows, Cols> &operator*=(const float &scalar);
     Matrix<Rows, Cols> &operator/=(const float &scalar);
 
-    Matrix<Rows, Cols> &operator<<(float data) const;
+    Matrix<Rows, Cols> &operator<<(float data);
+    Matrix<Rows, Cols> &operator,(float data);
 
     float &operator()(int row, int col);
     const float &operator()(int row, int col) const;
@@ -39,12 +50,10 @@ public:
     static Matrix<Rows, Cols> fromArray(const float *data);
     void toArray(float *data) const;
 
-    static Matrix<Rows, Cols> fromArray(const float *data, int rows, int cols);
-    void toArray(float *data, int rows, int cols) const;
-
 protected:
     arm_matrix_instance_f32 matrix;
     float data[Rows * Cols];
+    int inputIndex = 0;
 };
 
 template <int Rows, int Cols> Matrix<Rows, Cols>::Matrix()
@@ -70,10 +79,24 @@ template <int Rows, int Cols> Matrix<Rows, Cols>::~Matrix()
 }
 
 template <int Rows, int Cols>
+Matrix<Rows, Cols> Matrix<Rows, Cols>::operator=(Matrix<Rows, Cols> other)
+{
+    arm_copy_f32(other.data, data, Rows * Cols);
+    return *this;
+}
+
+template <int Rows, int Cols>
 Matrix<Rows, Cols> &
 Matrix<Rows, Cols>::operator=(const Matrix<Rows, Cols> &other)
 {
     arm_copy_f32(other.data, data, Rows * Cols);
+    return *this;
+}
+
+template <int Rows, int Cols>
+Matrix<Rows, Cols> &Matrix<Rows, Cols>::operator=(const float *data)
+{
+    arm_copy_f32(data, this->data, Rows * Cols);
     return *this;
 }
 
@@ -96,10 +119,11 @@ Matrix<Rows, Cols>::operator-(const Matrix<Rows, Cols> &other) const
 }
 
 template <int Rows, int Cols>
-Matrix<Rows, Cols>
-Matrix<Rows, Cols>::operator*(const Matrix<Rows, Cols> &other) const
+template <int resCols>
+Matrix<Rows, resCols>
+Matrix<Rows, Cols>::operator*(const Matrix<Cols, resCols> &other) const
 {
-    Matrix<Rows, Cols> result;
+    Matrix<Rows, resCols> result;
     arm_mat_mult_f32(&matrix, &other.matrix, &result.matrix);
     return result;
 }
@@ -124,7 +148,7 @@ template <int Rows, int Cols>
 Matrix<Rows, Cols> Matrix<Rows, Cols>::operator-() const
 {
     Matrix<Rows, Cols> result;
-    arm_negate_f32(&matrix, &result.matrix);
+    arm_negate_f32(data, &result.data);
     return result;
 }
 
@@ -157,14 +181,6 @@ Matrix<Rows, Cols>::operator-=(const Matrix<Rows, Cols> &other)
 }
 
 template <int Rows, int Cols>
-Matrix<Rows, Cols> &
-Matrix<Rows, Cols>::operator*=(const Matrix<Rows, Cols> &other)
-{
-    arm_mat_mult_f32(&matrix, &other.matrix, &matrix);
-    return *this;
-}
-
-template <int Rows, int Cols>
 Matrix<Rows, Cols> &Matrix<Rows, Cols>::operator*=(const float &scalar)
 {
     arm_mat_scale_f32(&matrix, scalar, &matrix);
@@ -179,11 +195,18 @@ Matrix<Rows, Cols> &Matrix<Rows, Cols>::operator/=(const float &scalar)
 }
 
 template <int Rows, int Cols>
-Matrix<Rows, Cols> &Matrix<Rows, Cols>::operator<<(float data) const
+Matrix<Rows, Cols> &Matrix<Rows, Cols>::operator<<(float data)
 {
-    static int index = 0;
-    if (index < Rows * Cols)
-        this->data[index++] = data;
+    if (this->inputIndex < Rows * Cols) {
+        this->data[this->inputIndex++] = data;
+    }
+    return *this;
+}
+
+template <int Rows, int Cols>
+Matrix<Rows, Cols> &Matrix<Rows, Cols>::operator,(float data)
+{
+    *this << data;
     return *this;
 }
 
@@ -218,14 +241,21 @@ Matrix<Rows, Cols> Matrix<Rows, Cols>::inverse() const
 template <int Rows, int Cols> Matrix<Rows, Cols> Matrix<Rows, Cols>::identity()
 {
     Matrix<Rows, Cols> result;
-    arm_mat_identity_f32(&result.matrix);
+    for (int i = 0; i < Rows; i++) {
+        for (int j = 0; j < Cols; j++) {
+            if (i == j)
+                result(i, j) = 1.0f;
+            else
+                result(i, j) = 0.0f;
+        }
+    }
     return result;
 }
 
 template <int Rows, int Cols> Matrix<Rows, Cols> Matrix<Rows, Cols>::zero()
 {
     Matrix<Rows, Cols> result;
-    arm_mat_zero_f32(&result.matrix);
+    memset(result.data, 0, Rows * Cols * sizeof(float));
     return result;
 }
 
@@ -241,21 +271,6 @@ template <int Rows, int Cols>
 void Matrix<Rows, Cols>::toArray(float *data) const
 {
     arm_copy_f32(this->data, data, Rows * Cols);
-}
-
-template <int Rows, int Cols>
-Matrix<Rows, Cols> Matrix<Rows, Cols>::fromArray(const float *data, int rows,
-                                                 int cols)
-{
-    Matrix<Rows, Cols> result;
-    arm_copy_f32(data, result.data, rows * cols);
-    return result;
-}
-
-template <int Rows, int Cols>
-void Matrix<Rows, Cols>::toArray(float *data, int rows, int cols) const
-{
-    arm_copy_f32(this->data, data, rows * cols);
 }
 
 using Matrix2x2f = Matrix<2, 2>;
