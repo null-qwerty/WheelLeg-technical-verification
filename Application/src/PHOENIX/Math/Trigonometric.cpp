@@ -14,7 +14,7 @@ float32_t cos(float32_t x)
 
 float32_t atan2(float32_t y, float32_t x)
 {
-    float32_t res; 
+    float32_t res;
     arm_atan2_f32(y, x, &res);
     return res;
 }
