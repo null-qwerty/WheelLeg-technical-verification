@@ -7,8 +7,8 @@
 class SPI : public Connectivity {
 public:
     typedef struct xSPIFrame_s {
-        uint8_t *data;
-        uint16_t length;
+        uint8_t *data = nullptr;
+        uint16_t length = 0;
     } xSPIFrame_t;
 
     SPI(SPI_HandleTypeDef *hspi);
