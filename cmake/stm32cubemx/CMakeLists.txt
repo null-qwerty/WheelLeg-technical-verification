@@ -6,8 +6,6 @@ add_library(stm32cubemx INTERFACE)
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
 
-set(CMSISDSP ../../Drivers/CMSIS/DSP)
-
 target_compile_definitions(stm32cubemx INTERFACE 
 	USE_HAL_DRIVER 
 	STM32F407xx 
@@ -24,12 +22,7 @@ target_include_directories(stm32cubemx INTERFACE
     ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
     ../../Drivers/CMSIS/Device/ST/STM32F4xx/Include
     ../../Drivers/CMSIS/Include
-    ${CMSISDSP}/Include
-    ${CMSISDSP}/PrivateInclude
-    ${CMSISDSP}/Include/dsp
 )
-
-file(GLOB_RECURSE CMSISDSP_SOURCES ${CMSISDSP}/Source/*.*)
 
 target_sources(stm32cubemx INTERFACE
     ../../Core/Src/main.cpp
@@ -80,10 +73,10 @@ target_sources(stm32cubemx INTERFACE
 )
 
 target_link_directories(stm32cubemx INTERFACE
-    -lc
 )
 
 target_link_libraries(stm32cubemx INTERFACE 
+    -lc
 )
 
 # Validate that STM32CubeMX code is compatible with C standard

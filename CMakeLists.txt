@@ -43,6 +43,17 @@ add_executable(${CMAKE_PROJECT_NAME})
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
+# build the CMSIS DSP library
+set(CMSISDSP ${CMAKE_SOURCE_DIR}/Drivers/CMSIS/DSP)
+FILE(GLOB_RECURSE CMSISDSP_SOURCES ${CMSISDSP}/Source/*.*)
+add_library(CMSISDSP STATIC ${CMSISDSP_SOURCES})
+target_include_directories(CMSISDSP PRIVATE
+    ${CMSISDSP}/Include
+    ${CMSISDSP}/PrivateInclude
+    ${CMSISDSP}/Include/dsp
+    ${CMSISDSP}/../Include
+)
+
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
@@ -61,6 +72,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     /usr/arm-linux-gnueabi/include
     ${CMAKE_SOURCE_DIR}/Application/include
+    ${CMSISDSP}/Include
+    ${CMSISDSP}/PrivateInclude
+    ${CMSISDSP}/Include/dsp
 )
 
 # Add project symbols (macros)
@@ -72,6 +86,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
     # Add user defined libraries
+    CMSISDSP
 )
 
 add_custom_command(OUTPUT flash
