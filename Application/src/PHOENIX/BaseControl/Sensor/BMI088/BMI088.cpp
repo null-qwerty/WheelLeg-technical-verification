@@ -66,12 +66,12 @@ BMI088 &BMI088::initGyro()
 {
     readDataFromGyro(BMI088_CHIP_ID_REG, &gyroChipID);
     readDataFromGyro(BMI088_CHIP_ID_REG, &gyroChipID);
-    // 设置陀螺仪量程为 ±2000°/s，带宽为 532Hz
+    // 设置陀螺仪量程为 ±2000°/s
     writeDataToGyro(BMI088_GYRO_RANGE_REG, BMI088_GYRO_RANGE_2000_DEG_S);
     delay_us(1000);
-    // 设置陀螺仪输出数据速率为 2000Hz，滤波器带宽为 532Hz
+    // 设置陀螺仪输出数据速率为 1000Hz，滤波器带宽为 116Hz
     writeDataToGyro(BMI088_GYRO_BANDWIDTH_REG,
-                    BMI088_GYRO_ODR_2000Hz_BANDWIDTH_532Hz);
+                    BMI088_GYRO_ODR_1000Hz_BANDWIDTH_116Hz);
     delay_us(1000);
     // 读取陀螺仪芯片 ID，正常情况下应该为 0x0F
     readDataFromGyro(BMI088_CHIP_ID_REG, &gyroChipID);
