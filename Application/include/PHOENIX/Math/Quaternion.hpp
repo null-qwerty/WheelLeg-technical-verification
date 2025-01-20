@@ -23,7 +23,7 @@ public:
     Vector3f toEulerAngles() const;
 
     Quaternion operator*(const Quaternion &other);
-    Quaternion &operator*(const float &scalar);
+    Quaternion operator*(const float &scalar);
 
     float &w();
     float &x();

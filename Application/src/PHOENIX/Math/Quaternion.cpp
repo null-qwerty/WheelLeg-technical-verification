@@ -148,38 +148,43 @@ Vector3f Quaternion::toEulerAngles() const
 {
     Vector3f result;
 
-    auto yaw = atan2f(2.0f * (this->X() * this->Y() + this->W() * this->Z()),
-                      this->W() * this->W() + this->X() * this->X() -
-                          this->Y() * this->Y() - this->Z() * this->Z());
-    auto pitch = asinf(2.0f * (this->W() * this->Y() - this->X() * this->Z()));
-    auto roll = atan2f(2.0f * (this->W() * this->X() + this->Y() * this->Z()),
-                       this->W() * this->W() - this->X() * this->X() -
-                           this->Y() * this->Y() + this->Z() * this->Z());
-    result << yaw, pitch, roll;
+    float roll =
+        atan2f(2 * (this->W() * this->X() + this->Y() * this->Z()),
+               1 - 2 * (this->X() * this->X() + this->Y() * this->Y()));
+    float pitch = asinf(2 * (this->W() * this->Y() - this->Z() * this->X()));
+    float yaw = atan2f(2 * (this->W() * this->Z() + this->X() * this->Y()),
+                       1 - 2 * (this->Y() * this->Y() + this->Z() * this->Z()));
+
+    result << roll, pitch, yaw;
 
     return result;
 }
 
 Quaternion Quaternion::operator*(const Quaternion &other)
 {
-    this->w() = this->W() * other.W() - this->X() * other.X() -
-                this->Y() * other.Y() - this->Z() * other.Z();
-    this->x() = this->W() * other.X() + this->X() * other.W() +
-                this->Y() * other.Z() - this->Z() * other.Y();
-    this->y() = this->W() * other.Y() - this->X() * other.Z() +
-                this->Y() * other.W() + this->Z() * other.X();
-    this->z() = this->W() * other.Z() + this->X() * other.Y() -
-                this->Y() * other.X() + this->Z() * other.W();
+    Quaternion res;
 
-    return *this;
+    res.w() = this->W() * other.W() - this->X() * other.X() -
+              this->Y() * other.Y() - this->Z() * other.Z();
+    res.x() = this->W() * other.X() + this->X() * other.W() +
+              this->Y() * other.Z() - this->Z() * other.Y();
+    res.y() = this->W() * other.Y() - this->X() * other.Z() +
+              this->Y() * other.W() + this->Z() * other.X();
+    res.z() = this->W() * other.Z() + this->X() * other.Y() -
+              this->Y() * other.X() + this->Z() * other.W();
+
+    return res;
 }
 
-Quaternion &Quaternion::operator*(const float &scalar)
+Quaternion Quaternion::operator*(const float &scalar)
 {
-    this->w() = scalar;
-    this->x() = scalar;
-    this->y() = scalar;
-    this->z() = scalar;
+    Quaternion res;
+
+    res.w() = this->W() * scalar;
+    res.x() = this->X() * scalar;
+    res.y() = this->Y() * scalar;
+    res.z() = this->Z() * scalar;
+
     return *this;
 }
 

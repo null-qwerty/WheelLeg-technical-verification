@@ -89,7 +89,10 @@ template <int Dim>
 Vector<Dim> Vector<Dim>::cross(const Vector<Dim> &other) const
 {
     Vector<Dim> result;
-    arm_cross_f32(this->data, other.data, result.data);
+    for (int i = 0; i < Dim; i++) {
+        result[i] = this->data[(i + 1) % Dim] * other.data[(i + 2) % Dim] -
+                    this->data[(i + 2) % Dim] * other.data[(i + 1) % Dim];
+    }
     return result;
 }
 
@@ -151,9 +154,7 @@ Vector<Dim> Vector<Dim>::operator-(const Vector<Dim> &other) const
 template <int Dim>
 Vector<Dim> Vector<Dim>::operator*(const Vector<Dim> &other) const
 {
-    Vector<Dim> result;
-    arm_mult_f32(this->data, other.data, result.data, Dim);
-    return result;
+    return this->cross(other);
 }
 
 template <int Dim> Vector<Dim> Vector<Dim>::operator*(const float &scalar) const
