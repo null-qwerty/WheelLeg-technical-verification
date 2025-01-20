@@ -42,6 +42,8 @@ public:
     Vector<Dim> &operator-=(const Vector<Dim> &other);
     Vector<Dim> &operator*=(const float &scalar);
     Vector<Dim> &operator/=(const float &scalar);
+
+    operator float *();
 };
 
 template <int Dim>
@@ -209,6 +211,11 @@ template <int Dim> Vector<Dim> &Vector<Dim>::operator/=(const float &scalar)
 {
     arm_scale_f32(this->data, 1.0f / scalar, this->data, Dim);
     return *this;
+}
+
+template <int Dim> Vector<Dim>::operator float *()
+{
+    return this->data;
 }
 
 using Vector2f = Vector<2>;

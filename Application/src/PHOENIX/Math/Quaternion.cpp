@@ -148,21 +148,14 @@ Vector3f Quaternion::toEulerAngles() const
 {
     Vector3f result;
 
-    float sinr_cosp = 2.0f * (this->W() * this->X() + this->Y() * this->Z());
-    float cosr_cosp =
-        1.0f - 2.0f * (this->X() * this->X() + this->Y() * this->Y());
-    result[0] = atan2f(sinr_cosp, cosr_cosp);
-
-    float sinp = 2.0f * (this->W() * this->Y() - this->Z() * this->X());
-    if (fabs(sinp) >= 1.0f)
-        result[1] = copysignf(M_PI / 2.0f, sinp);
-    else
-        result[1] = asinf(sinp);
-
-    float siny_cosp = 2.0f * (this->W() * this->Z() + this->X() * this->Y());
-    float cosy_cosp =
-        1.0f - 2.0f * (this->Y() * this->Y() + this->Z() * this->Z());
-    result[2] = atan2f(siny_cosp, cosy_cosp);
+    auto yaw = atan2f(2.0f * (this->X() * this->Y() + this->W() * this->Z()),
+                      this->W() * this->W() + this->X() * this->X() -
+                          this->Y() * this->Y() - this->Z() * this->Z());
+    auto pitch = asinf(2.0f * (this->W() * this->Y() - this->X() * this->Z()));
+    auto roll = atan2f(2.0f * (this->W() * this->X() + this->Y() * this->Z()),
+                       this->W() * this->W() - this->X() * this->X() -
+                           this->Y() * this->Y() + this->Z() * this->Z());
+    result << yaw, pitch, roll;
 
     return result;
 }
@@ -237,4 +230,9 @@ Vector3f Quaternion::XYZ() const
     result[1] = this->Y();
     result[2] = this->Z();
     return result;
+}
+
+Quaternion::operator float *()
+{
+    return this->data;
 }

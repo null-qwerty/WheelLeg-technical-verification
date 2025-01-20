@@ -36,4 +36,6 @@ public:
     float Z() const;
 
     Vector3f XYZ() const;
+
+    operator float *();
 };

@@ -11,7 +11,6 @@ public:
     Matrix(const Matrix<Rows, Cols> &&other);
     ~Matrix();
 
-    Matrix<Rows, Cols> operator=(Matrix<Rows, Cols> other);
     Matrix<Rows, Cols> &operator=(const Matrix<Rows, Cols> &other);
     Matrix<Rows, Cols> &operator=(const float *data);
 
@@ -19,7 +18,7 @@ public:
     Matrix<Rows, Cols> operator-(const Matrix<Rows, Cols> &other) const;
     // Matrix<Rows, Cols> operator*(const Matrix<Rows, Cols> &other) const;
     template <int resCols>
-    Matrix<Rows, resCols> operator*(const Matrix<Cols, resCols> &other) const;
+    Matrix<Rows, resCols> operator*(const Matrix<Cols, resCols> &other);
     Matrix<Rows, Cols> operator*(const float &scalar) const;
     friend Matrix<Rows, Cols> operator*(const float &scalar,
                                         const Matrix<Rows, Cols> &matrix)
@@ -50,6 +49,10 @@ public:
     static Matrix<Rows, Cols> fromArray(const float *data);
     void toArray(float *data) const;
 
+    operator float *();
+
+    template <int otherRows, int otherCols> friend class Matrix;
+
 protected:
     arm_matrix_instance_f32 matrix;
     float data[Rows * Cols];
@@ -76,13 +79,6 @@ Matrix<Rows, Cols>::Matrix(const Matrix<Rows, Cols> &other)
 
 template <int Rows, int Cols> Matrix<Rows, Cols>::~Matrix()
 {
-}
-
-template <int Rows, int Cols>
-Matrix<Rows, Cols> Matrix<Rows, Cols>::operator=(Matrix<Rows, Cols> other)
-{
-    arm_copy_f32(other.data, data, Rows * Cols);
-    return *this;
 }
 
 template <int Rows, int Cols>
@@ -121,7 +117,7 @@ Matrix<Rows, Cols>::operator-(const Matrix<Rows, Cols> &other) const
 template <int Rows, int Cols>
 template <int resCols>
 Matrix<Rows, resCols>
-Matrix<Rows, Cols>::operator*(const Matrix<Cols, resCols> &other) const
+Matrix<Rows, Cols>::operator*(const Matrix<Cols, resCols> &other)
 {
     Matrix<Rows, resCols> result;
     arm_mat_mult_f32(&matrix, &other.matrix, &result.matrix);
@@ -271,6 +267,11 @@ template <int Rows, int Cols>
 void Matrix<Rows, Cols>::toArray(float *data) const
 {
     arm_copy_f32(this->data, data, Rows * Cols);
+}
+
+template <int Rows, int Cols> Matrix<Rows, Cols>::operator float *()
+{
+    return data;
 }
 
 using Matrix2x2f = Matrix<2, 2>;
