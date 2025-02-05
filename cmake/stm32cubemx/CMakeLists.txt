@@ -29,6 +29,7 @@ target_sources(stm32cubemx INTERFACE
     ../../Core/Src/gpio.c
     ../../Core/Src/freertos.c
     ../../Core/Src/can.c
+    ../../Core/Src/dma.c
     ../../Core/Src/i2c.c
     ../../Core/Src/spi.c
     ../../Core/Src/tim.c
@@ -75,8 +76,7 @@ target_sources(stm32cubemx INTERFACE
 target_link_directories(stm32cubemx INTERFACE
 )
 
-target_link_libraries(stm32cubemx INTERFACE 
-    -lc
+target_link_libraries(stm32cubemx INTERFACE
 )
 
 # Validate that STM32CubeMX code is compatible with C standard
