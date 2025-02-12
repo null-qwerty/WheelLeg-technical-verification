@@ -101,7 +101,7 @@ git submodule init
 git submodule update
 ```
 
-使用 CubeMX 打开 `WheelLeg-test.ioc` 文件，生成代码，**并删除 `cmake/stm32cubemx/CMakeLists.txt` 中的 `../../Core/Src/main.c` 行**。
+使用 CubeMX 打开 `WheelLeg-test.ioc` 文件，生成代码，**并删除 `cmake/stm32cubemx/CMakeLists.txt` 中的 `../../Core/Src/main.c` 行**。 `Core/Src/main.c` 文件也可删除，项目所用的入口文件是同文件夹下的 `main.cpp`。
 
 编译：
 
