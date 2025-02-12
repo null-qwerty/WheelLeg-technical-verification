@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "WheelLeg/tasks.hpp"
+#include "tasks.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

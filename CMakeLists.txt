@@ -38,7 +38,7 @@ project(${CMAKE_PROJECT_NAME})
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 # Create an executable object type
-add_executable(${CMAKE_PROJECT_NAME})
+add_executable(${CMAKE_PROJECT_NAME} ${CMAKE_SOURCE_DIR}/Core/Src/main.cpp)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
@@ -54,17 +54,18 @@ target_include_directories(CMSISDSP PRIVATE
     ${CMSISDSP}/../Include
 )
 
+# build the user defined libraries
+add_subdirectory(PHOENIX)
+add_subdirectory(Application)
+
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
-    ${CMAKE_SOURCE_DIR}/Application/include
 )
 
 # Add sources to executable
-FILE(GLOB_RECURSE USER_SOURCES ${CMAKE_SOURCE_DIR}/Application/src/*.*)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    ${USER_SOURCES}
 )
 
 # Add include paths
@@ -72,6 +73,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     /usr/arm-linux-gnueabi/include
     ${CMAKE_SOURCE_DIR}/Application/include
+    ${CMAKE_SOURCE_DIR}/PHOENIX/include
     ${CMSISDSP}/Include
     ${CMSISDSP}/PrivateInclude
     ${CMSISDSP}/Include/dsp
@@ -86,7 +88,7 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
     # Add user defined libraries
-    CMSISDSP
+    application
 )
 
 add_custom_command(OUTPUT flash
