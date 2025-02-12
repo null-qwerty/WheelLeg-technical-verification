@@ -15,47 +15,42 @@
 ```bash
 .
 ├── Application     # 应用层代码
+│   ├── Chassis     # 底盘控制
+│   ├── CMakeLists.txt
+│   ├── Gimbal      # 云台控制
 │   ├── include
-│   └── src
-├── build    # build 文件夹
-├── cmake    # CubeMX 生成的 CMakeLists.txt 文件
+│   ├── Leg     # 腿部解算
+│   └── tasks   # 任务管理
+├── build   # build 文件夹
+├── cmake   # CubeMX 生成的 CMakeLists.txt 文件
 │   ├── gcc-arm-none-eabi.cmake
 │   └── stm32cubemx
 ├── CMakeLists.txt  # 项目根目录 CMakeLists.txt
 ├── CMakePresets.json
-├── Core            # CubeMX 生成的代码
+├── Core    # CubeMX 生成的代码
 │   ├── Inc
 │   └── Src
-├── Drivers         # 驱动层代码，包括 HAL 库和 CMSIS 库，其中 DSP 库在 CMSIS 中，以子模块的形式引入
+├── Drivers    # 驱动层代码，包括 HAL 库和 CMSIS 库，其中 DSP 库在 CMSIS 中，以子模块的形式引入
 │   ├── CMSIS
 │   └── STM32F4xx_HAL_Driver
-├── Middlewares     # 中间件，由 CubeMX 生成
+├── LICENSE    # Apache 2.0
+├── Middlewares   # 中间件，由 CubeMX 生成
 │   └── Third_Party
 │       └── FreeRTOS
 ├── newlib_lock_glue.c
+├── PHOENIX    # 基础库, 是对 HAL 库的封装，包括通信、控制器、电机驱动
+│   ├── BaseControl   # 基础控制库
+│   ├── CMakeLists.txt
+│   ├── Filter  # 观测器/滤波器
+│   ├── include
+│   ├── Math    # 数学库，是对 CMSIS-DSP 库的封装
+│   └── Utils   # 工具库
 ├── README.md
 ├── startup_stm32f407xx.s
 ├── STM32F407IGHx_FLASH.ld
 ├── stm32_lock.h
 └── WheelLeg-test.ioc   # CubeMX 工程文件
 ```
-
-其中 `Application` 文件夹内容如下：
-
-+ PHOENIX: 基础库
-  + BaseControl: 基础控制库，包括通信、控制器、电机驱动
-    + Connectivity: 通信库，将不同的通信方式封装成统一的接口，对 HAL 库的封装
-    + Controller: 控制器库
-    + Motor: 电机驱动库，将不同的电机驱动方式封装成统一的接口
-    + Sensor: 传感器库，将不同的传感器封装成统一的接口
-  + Math: 数学库，包括三角函数、矩阵、向量、四元数、等数学运算，是对 CMSIS-DSP 库的封装
-+ Utils: 工具库，目前里面只有一个没用到的微秒级延时函数
-+ WheelLeg: 上层应用
-  + Chassis: 底盘控制
-  + Gimbal: 云台控制
-  + Leg: 腿部解算
-  + Task: 任务管理
-  + Strategy: 决策
 
 ## 项目进度
 
@@ -75,12 +70,13 @@
     - [ ] IST8310
 - 控制器
     - [x] PID
+    - [ ] ADRC
     - [ ] LQR
 - 观测器/滤波器
     - [ ] 卡尔曼滤波器
     - [ ] 扩展卡尔曼滤波器
     - [ ] 无迹卡尔曼滤波器
-    - [ ] Mahony
+    - [x] Mahony
 - 数学库 (**未测试**)
     - [x] CMSIS-DSP 移植
     - [x] 三角函数
