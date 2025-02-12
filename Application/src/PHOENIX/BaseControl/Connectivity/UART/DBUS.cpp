@@ -7,20 +7,15 @@ DBUS::DBUS(UART_HandleTypeDef *huart)
     ((xUARTFrame_t *)this->getReceiveFrame())->length = DBUS_BUFFER_SIZE;
 }
 
-void DBUS::receiveDBUSMessage()
+void DBUS::decodeDBUSMessage()
 {
-    if (receiveMessage() != HAL_OK) {
-        dbusData = DBUSData();
-        return;
-    }
-
     // clang-format off
     dbusData.rc.ch0 = (((int16_t)dbusBuffer[0] >> 0) | ((int16_t)dbusBuffer[1] << 8)) & 0x07FF;
     dbusData.rc.ch1 = (((int16_t)dbusBuffer[1] >> 3) | ((int16_t)dbusBuffer[2] << 5)) & 0x07FF;
     dbusData.rc.ch2 = (((int16_t)dbusBuffer[2] >> 6) | ((int16_t)dbusBuffer[3] << 2) | ((int16_t)dbusBuffer[4] << 10)) & 0x07FF;
     dbusData.rc.ch3 = (((int16_t)dbusBuffer[4] >> 1) | ((int16_t)dbusBuffer[5] << 7)) & 0x07FF;
 
-    dbusData.rc.s1 = ((dbusBuffer[5] >> 4) & 0x000C) >> 2;
+    dbusData.rc.s1 = dbusBuffer[5] >> 6;
     dbusData.rc.s2 = ((dbusBuffer[5] >> 4) & 0x0003);
 
     dbusData.mouse.x = ((int16_t)dbusBuffer[6])  | ((int16_t)dbusBuffer[7] << 8);
@@ -30,6 +25,8 @@ void DBUS::receiveDBUSMessage()
     dbusData.mouse.press_r = dbusBuffer[13];
 
     dbusData.key.v = ((int16_t)dbusBuffer[14]) | ((int16_t)dbusBuffer[15] << 8);
+
+    dbusData.rc.tw = (((int16_t)dbusBuffer[16] >> 0) | ((int16_t)dbusBuffer[17] << 8)) & 0x07FF;
     // clang-format on
     ifDataValid();
 }
@@ -52,13 +49,15 @@ bool DBUS::ifDataValid()
     if (dbusData.rc.ch3 > RC_CH_VALUE_MAX || dbusData.rc.ch3 < RC_CH_VALUE_MIN)
         (dbusData.rc.ch3 = RC_CH_VALUE_OFFSET, status = false);
     if (dbusData.rc.s1 > RC_SW_MID)
-        (dbusData.rc.s1 = RC_SW_MID, status = false);
+        (dbusData.rc.s1 = 0, status = false);
     if (dbusData.rc.s1 < RC_SW_UP)
-        (dbusData.rc.s1 = RC_SW_MID, status = false);
+        (dbusData.rc.s1 = 0, status = false);
     if (dbusData.rc.s2 > RC_SW_MID)
-        (dbusData.rc.s2 = RC_SW_MID, status = false);
+        (dbusData.rc.s2 = 0, status = false);
     if (dbusData.rc.s2 < RC_SW_UP)
-        (dbusData.rc.s2 = RC_SW_MID, status = false);
+        (dbusData.rc.s2 = 0, status = false);
+    if (dbusData.rc.tw > RC_TW_VALUE_MAX || dbusData.rc.tw < RC_TW_VALUE_MIN)
+        (dbusData.rc.tw = RC_TW_VALUE_OFFSET, status = false);
 
     return status;
 }

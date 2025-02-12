@@ -6,9 +6,14 @@ void vTaskReadDbus(void *pvParameters)
 {
     // 当前未实现关节电机控制，故将直接控制轮毂电机运动
     // 后续运动控制可能会通过调整重心的变化实现
+
+    TickType_t xLastWakeTime;
+    TickType_t xFrequency = pdMS_TO_TICKS(2);
+    xLastWakeTime = xTaskGetTickCount();
     while (1) {
         // 读取遥控器数据
-        dbus.receiveDBUSMessage();
+        dbus.receiveMessage();
+        dbus.decodeDBUSMessage();
         // 前进
         leftWheel.getTargetState().velocity =
             (dbus.getDBUSData().rc.ch1 - 1024) / 660.0 * 1800;
@@ -28,7 +33,7 @@ void vTaskReadDbus(void *pvParameters)
         else if (jointInited && dbus.getDBUSData().rc.s2 == 1)
             xTaskNotifyGive(jointDeinitTaskHandle);
 
-        osDelay(5);
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
     }
 
     vTaskDelete(readDbusTaskHandle);

@@ -10,6 +10,10 @@
 #define RC_SW_UP ((uint16_t)1)
 #define RC_SW_MID ((uint16_t)3)
 #define RC_SW_DOWN ((uint16_t)2)
+/* ----------------------- RC Thumbwheel Definition------------------------- */
+#define RC_TW_VALUE_MIN ((uint16_t)364)
+#define RC_TW_VALUE_OFFSET ((uint16_t)1024)
+#define RC_TW_VALUE_MAX ((uint16_t)1556)
 /* ----------------------- PC Key Definition-------------------------------- */
 #define KEY_PRESSED_OFFSET_W ((uint16_t)0x01 << 0)
 #define KEY_PRESSED_OFFSET_S ((uint16_t)0x01 << 1)
@@ -40,6 +44,7 @@ public:
             uint16_t ch3 = 1024;
             uint8_t s1 = 0;
             uint8_t s2 = 0;
+            uint16_t tw = 1024;
         } rc;
         struct {
             int16_t x = 0;
@@ -55,7 +60,7 @@ public:
 
     DBUS(UART_HandleTypeDef *huart);
 
-    void receiveDBUSMessage();
+    void decodeDBUSMessage();
 
     DBUSData &getDBUSData();
 
