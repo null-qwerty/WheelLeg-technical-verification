@@ -93,6 +93,16 @@
 
 ## 使用方法
 
+克隆仓库并初始化子模块：
+
+```bash
+git clone
+git submodule init
+git submodule update
+```
+
+使用 CubeMX 打开 `WheelLeg-test.ioc` 文件，生成代码，**并删除 `cmake/stm32cubemx/CMakeLists.txt` 中的 `../../Core/Src/main.c` 行**。
+
 编译：
 
 ```bash
