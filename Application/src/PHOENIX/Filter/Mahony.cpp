@@ -136,13 +136,13 @@ Quaternion Mahony6Axis::update(Vector3f gyro, Vector3f accel)
     gyro *= (0.5f / sampleFreq);
     q += q * Quaternion(0.0f, gyro(0), gyro(1), gyro(2));
 
+    // 消除 yaw 角零漂
+    auto euler = q.toEulerAngles();
+    q.fromEulerAngles(euler[2] - 2.6381924E-6, euler[1], euler[0]);
+
     // Normalise quaternion
     // 归一化四元数
     q = q.normalize();
-
-    // 消除 yaw 角零漂
-    auto euler = q.toEulerAngles();
-    q.fromEulerAngles(euler[2] - 2.59765625E-6, euler[1], euler[0]);
 
     return q;
 }
