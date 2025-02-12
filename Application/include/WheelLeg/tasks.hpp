@@ -1,15 +1,16 @@
 #pragma once
 
+#include "main.h"
 #include "FreeRTOS.h"
-#include "PHOENIX/BaseControl/Connectivity/CAN/CAN.hpp"
 #include "cmsis_os2.h"
-#include "portmacro.h"
-#include "stm32f4xx_hal_def.h"
 #include "task.h"
 
+#include "PHOENIX/BaseControl/Connectivity/CAN/CAN.hpp"
+#include "PHOENIX/BaseControl/Connectivity/UART/DBUS.hpp"
 #include "PHOENIX/BaseControl/Motor/RM3508.hpp"
 #include "PHOENIX/BaseControl/Motor/DM4310.hpp"
-#include "PHOENIX/BaseControl/Connectivity/UART/DBUS.hpp"
+#include "PHOENIX/BaseControl/Sensor/BMI088/BMI088.hpp"
+#include "PHOENIX/BaseControl/Connectivity/SPI/SPI.hpp"
 
 void WheelLegTasksInit(void);
 
@@ -75,6 +76,14 @@ __weak void vTaskJointDeinit(void *pvParameters);
  */
 __weak void vTaskJointControl(void *pvParameters);
 
+/**
+ * @brief 传感器数据处理
+ *
+ * @param pvParameters 任务参数，未使用
+ * @note 读取 BMI088 传感器数据，理论频率 1000Hz。 (osPriorityAboveNormal)
+ */
+__weak void vTaskSensor(void *pvParameters);
+
 extern xTaskHandle xTaskLED_GHandle;
 
 extern xTaskHandle wheelReceiveTaskHandle;
@@ -85,6 +94,8 @@ extern xTaskHandle readDbusTaskHandle;
 extern xTaskHandle jointInitTaskHandle;
 extern xTaskHandle jointDeinitTaskHandle;
 extern xTaskHandle jointControlTaskHandle;
+
+extern xTaskHandle sensorTaskHandle;
 
 extern CAN_FilterTypeDef wheelCanfilter;
 extern CAN wheelConnectivity;
@@ -101,3 +112,7 @@ extern DM4310 leftFrontJoint, leftBackJoint, rightFrontJoint, rightBackJoint;
 
 extern TickType_t tickCount;
 extern bool jointInited;
+
+extern SPI imuSPI;
+extern BMI088 imu;
+extern BMI088::Data_t *imuData;
