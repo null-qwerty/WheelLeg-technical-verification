@@ -1,7 +1,6 @@
 include_directories(
     include
     /usr/arm-linux-gnueabi/include
-    ${CMAKE_SOURCE_DIR}/Application/include
     ${CMAKE_SOURCE_DIR}/PHOENIX/include
     ${CMSISDSP}/Include
     ${CMSISDSP}/PrivateInclude
