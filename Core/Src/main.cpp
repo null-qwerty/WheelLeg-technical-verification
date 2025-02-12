@@ -20,15 +20,13 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "can.h"
+#include "dma.h"
 #include "i2c.h"
-#include "portmacro.h"
-#include "projdefs.h"
 #include "spi.h"
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_can.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "WheelLeg/tasks.hpp"
