@@ -48,6 +48,30 @@ void vTaskWheelControl(void *pvParameters)
     vTaskDelete(wheelControlTaskHandle);
 }
 
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    // * 需要在中断中调用 HAL_CAN_GetRxMessage()，实测如果把
+    // * 调用放到 notify 的任务中无法正常接收消息，还需调试
+    wheelConnectivity.receiveMessage();
+    // 判断接收的消息是否合法
+    // clang-format off
+    if (((CAN::xReceptionFrame_t*)(wheelConnectivity.getReceiveFrame()))->header.RTR != CAN_RTR_DATA ||
+        ((CAN::xReceptionFrame_t*)(wheelConnectivity.getReceiveFrame()))->header.IDE != CAN_ID_STD ||
+        ((CAN::xReceptionFrame_t*)(wheelConnectivity.getReceiveFrame()))->header.DLC != 8) {
+        return;
+    }
+    // clang-format on
+    // 高优先级优先，上下文切换时优先执行高优先级任务
+    BaseType_t xHigherPriorityTaskWoken = pdTRUE;
+    // 发送二进制信号量通知 wheelReceiveTask
+    // 中断中需要调用 vTaskNotifyGiveFromISR()
+    vTaskNotifyGiveFromISR(wheelReceiveTaskHandle, &xHigherPriorityTaskWoken);
+    // 切换上下文
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+    return;
+}
+
 xTaskHandle wheelReceiveTaskHandle;
 xTaskHandle wheelControlTaskHandle;
 
