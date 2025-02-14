@@ -4,6 +4,7 @@
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
 #include "task.h"
+#include "semphr.h"
 
 #include "BaseControl/Connectivity/CAN/CAN.hpp"
 #include "BaseControl/Connectivity/UART/DBUS.hpp"
@@ -96,6 +97,8 @@ extern xTaskHandle jointDeinitTaskHandle;
 extern xTaskHandle jointControlTaskHandle;
 
 extern xTaskHandle sensorTaskHandle;
+
+extern SemaphoreHandle_t wheelControlMutex;
 
 extern CAN_FilterTypeDef wheelCanfilter;
 extern CAN wheelConnectivity;

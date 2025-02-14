@@ -4,6 +4,7 @@
 
 void vTaskWheelReceive(void *pvParameters)
 {
+    wheelConnectivity.init();
     while (1) {
         // 接收 CAN2 中断发出的信号量
         // xClearCountOnExit 清空信号量数量
@@ -16,6 +17,8 @@ void vTaskWheelReceive(void *pvParameters)
         } else if (((CAN::xReceptionFrame_t*)wheelConnectivity.getReceiveFrame())->header.StdId == rightWheel.getReceiveId()) {
             rightWheel.decodeFeedbackMessage();
         }
+        // 向轮毂控制任务发出信号量，任务之间使用 xTaskNotifyGive()
+        xTaskNotifyGive(wheelControlTaskHandle);
         // clang-format on
     }
 
@@ -37,8 +40,11 @@ void vTaskWheelControl(void *pvParameters)
         // 接收从其他任务发出的信号量
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        leftWheel.encodeControlMessage();
-        rightWheel.encodeControlMessage();
+        if (xSemaphoreTake(wheelControlMutex, 1)) {
+            leftWheel.encodeControlMessage();
+            rightWheel.encodeControlMessage();
+            xSemaphoreGive(wheelControlMutex);
+        }
 
         // 发送控制信息，若发送失败则重新初始化 CAN 线
         if (wheelConnectivity.sendMessage() != HAL_OK)
