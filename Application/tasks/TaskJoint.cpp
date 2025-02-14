@@ -7,6 +7,7 @@
 
 void vTaskJointInit(void *pvParameters)
 {
+    jointConnectivity.init();
     while (1) {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         jointInited = true;
