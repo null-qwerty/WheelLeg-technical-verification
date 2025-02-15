@@ -30,6 +30,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.hpp"
+#include "Utils/note.hpp"
+#include "Utils/music.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,7 +52,14 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint16_t delayUnit = 150;
+// Note note[] = { { H3b, 2 * delayUnit }, { M3b, 1 * delayUnit },
+//                 { M7b, 4 * delayUnit }, { M6b, 6 * delayUnit },
+//                 { H3b, 2 * delayUnit }, { M7b, 10 * delayUnit } };
+Note note[] = { { H1, 1 * delayUnit }, { Z0, 1 * delayUnit },
+                { H1, 1 * delayUnit }, { Z0, 2 * delayUnit },
+                { H1, 1 * delayUnit }, { H2, 1 * delayUnit },
+                { H3, 1 * delayUnit } };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,8 +111,16 @@ int main(void)
     MX_SPI1_Init();
     MX_TIM10_Init();
     MX_TIM7_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-    HAL_Delay(3000);
+    HAL_TIM_Base_Start(&htim4);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+
+    // windows XP startup sound
+    for (int i = 0; i < 7; i++) {
+        note[i].play();
+    }
+
     wheelControlMutex = xSemaphoreCreateMutex();
     /* USER CODE END 2 */
 
