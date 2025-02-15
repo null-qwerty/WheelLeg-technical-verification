@@ -20,18 +20,18 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "can.h"
+#include "dma.h"
 #include "i2c.h"
-#include "portmacro.h"
-#include "projdefs.h"
 #include "spi.h"
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_can.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "WheelLeg/tasks.hpp"
+#include "tasks.hpp"
+#include "Utils/note.hpp"
+#include "Utils/music.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,7 +52,14 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint16_t delayUnit = 150;
+// Note note[] = { { H3b, 2 * delayUnit }, { M3b, 1 * delayUnit },
+//                 { M7b, 4 * delayUnit }, { M6b, 6 * delayUnit },
+//                 { H3b, 2 * delayUnit }, { M7b, 10 * delayUnit } };
+Note note[] = { { H1, 1 * delayUnit }, { Z0, 1 * delayUnit },
+                { H1, 1 * delayUnit }, { Z0, 2 * delayUnit },
+                { H1, 1 * delayUnit }, { H2, 1 * delayUnit },
+                { H3, 1 * delayUnit } };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -96,6 +103,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_CAN1_Init();
     MX_CAN2_Init();
     MX_USART3_UART_Init();
@@ -103,11 +111,17 @@ int main(void)
     MX_SPI1_Init();
     MX_TIM10_Init();
     MX_TIM7_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-    HAL_Delay(3000);
-    wheelConnectivity.init();
-    jointConnectivity.init();
-    dbus.init();
+    HAL_TIM_Base_Start(&htim4);
+    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
+
+    // windows XP startup sound
+    for (int i = 0; i < 7; i++) {
+        note[i].play();
+    }
+
+    wheelControlMutex = xSemaphoreCreateMutex();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -176,65 +190,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    // * 需要在中断中调用 HAL_CAN_GetRxMessage()，实测如果把
-    // * 调用放到 notify 的任务中无法正常接收消息，还需调试
-    wheelConnectivity.receiveMessage();
-    // 判断接收的消息是否合法
-    // clang-format off
-    if (((CAN_RxHeaderTypeDef*)(wheelConnectivity.getRxHeader()))->RTR != CAN_RTR_DATA ||
-        ((CAN_RxHeaderTypeDef*)(wheelConnectivity.getRxHeader()))->IDE != CAN_ID_STD ||
-        ((CAN_RxHeaderTypeDef*)(wheelConnectivity.getRxHeader()))->DLC != 8) {
-        return;
-    }
-    // clang-format on
-    // 高优先级优先，上下文切换时优先执行高优先级任务
-    BaseType_t xHigherPriorityTaskWoken = pdTRUE;
-    // 发送二进制信号量通知 wheelReceiveTask
-    // 中断中需要调用 vTaskNotifyGiveFromISR()
-    vTaskNotifyGiveFromISR(wheelReceiveTaskHandle, &xHigherPriorityTaskWoken);
-    // 切换上下文
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
-    return;
-}
-
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-    // * 需要在中断中调用 HAL_CAN_GetRxMessage()，实测如果把
-    // * 调用放到 notify 的任务中无法正常接收消息，还需调试
-    jointConnectivity.receiveMessage();
-    // 判断接收的消息是否合法
-    // clang-format off
-    if (((CAN_RxHeaderTypeDef*)(jointConnectivity.getRxHeader()))->RTR != CAN_RTR_DATA ||
-        ((CAN_RxHeaderTypeDef*)(jointConnectivity.getRxHeader()))->IDE != CAN_ID_STD ||
-        ((CAN_RxHeaderTypeDef*)(jointConnectivity.getRxHeader()))->DLC != 8) {
-        return;
-    }
-    // clang-format on
-    if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-        leftFrontJoint.getReceiveId())
-        leftFrontJoint.decodeFeedbackMessage();
-    else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-             leftBackJoint.getReceiveId())
-        leftBackJoint.decodeFeedbackMessage();
-    else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-             rightFrontJoint.getReceiveId())
-        rightFrontJoint.decodeFeedbackMessage();
-    else if (((CAN_RxHeaderTypeDef *)jointConnectivity.getRxHeader())->StdId ==
-             rightBackJoint.getReceiveId())
-        rightBackJoint.decodeFeedbackMessage();
-    // 高优先级优先，上下文切换时优先执行高优先级任务
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    // 发送二进制信号量通知 wheelReceiveTask
-    // 中断中需要调用 vTaskNotifyGiveFromISR()
-    vTaskNotifyGiveFromISR(jointControlTaskHandle, &xHigherPriorityTaskWoken);
-    // 切换上下文
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-
-    return;
-}
 /* USER CODE END 4 */
 
 /**

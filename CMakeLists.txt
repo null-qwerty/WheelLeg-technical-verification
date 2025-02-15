@@ -38,43 +38,45 @@ project(${CMAKE_PROJECT_NAME})
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 # Create an executable object type
-add_executable(${CMAKE_PROJECT_NAME})
+add_executable(${CMAKE_PROJECT_NAME} ${CMAKE_SOURCE_DIR}/Core/Src/main.cpp)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
+# build the CMSIS DSP library
+set(CMSISDSP ${CMAKE_SOURCE_DIR}/Drivers/CMSIS/DSP)
+FILE(GLOB_RECURSE CMSISDSP_SOURCES ${CMSISDSP}/Source/*.*)
+add_library(CMSISDSP STATIC ${CMSISDSP_SOURCES})
+target_include_directories(CMSISDSP PRIVATE
+    ${CMSISDSP}/Include
+    ${CMSISDSP}/PrivateInclude
+    ${CMSISDSP}/Include/dsp
+    ${CMSISDSP}/../Include
+)
+
+# build the user defined libraries
+add_subdirectory(PHOENIX)
+add_subdirectory(Application)
+
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
-    {CMAKE_SOURCE_DIR}/Core/Inc
 )
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    ${CMAKE_SOURCE_DIR}/Core/Src/WheelLeg/tasks/tasks.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/WheelLeg/tasks/TaskLed.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/WheelLeg/tasks/TaskWheel.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/WheelLeg/tasks/TaskReadDbus.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/WheelLeg/tasks/TaskJoint.cpp
-
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Connectivity/Connectivity.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Connectivity/CAN/CAN.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Connectivity/UART/UART.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Connectivity/UART/DBUS.cpp
-    
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Motor/Motor.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Motor/RM3508.cpp
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Motor/DM4310.cpp
-    
-    ${CMAKE_SOURCE_DIR}/Core/Src/PHOENIX/BaseControl/Controller/pidController.cpp
-
-    ${CMAKE_SOURCE_DIR}/Core/Src/Utils/Utils.cpp
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    /usr/arm-linux-gnueabi/include
+    ${CMAKE_SOURCE_DIR}/Application/include
+    ${CMAKE_SOURCE_DIR}/PHOENIX/include
+    ${CMSISDSP}/Include
+    ${CMSISDSP}/PrivateInclude
+    ${CMSISDSP}/Include/dsp
 )
 
 # Add project symbols (macros)
@@ -85,8 +87,8 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
-    -std=c++11
     # Add user defined libraries
+    application
 )
 
 add_custom_command(OUTPUT flash

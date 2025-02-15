@@ -15,7 +15,6 @@ target_compile_definitions(stm32cubemx INTERFACE
 
 target_include_directories(stm32cubemx INTERFACE
     ../../Core/Inc
-    ../../Core/Inc/Base
     ../../Drivers/STM32F4xx_HAL_Driver/Inc
     ../../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
     ../../Middlewares/Third_Party/FreeRTOS/Source/include
@@ -26,17 +25,17 @@ target_include_directories(stm32cubemx INTERFACE
 )
 
 target_sources(stm32cubemx INTERFACE
-    ../../Core/Src/main.cpp
-    ../../Core/Src/Base/gpio.c
-    ../../Core/Src/Base/freertos.c
-    ../../Core/Src/Base/can.c
-    ../../Core/Src/Base/i2c.c
-    ../../Core/Src/Base/spi.c
-    ../../Core/Src/Base/tim.c
-    ../../Core/Src/Base/usart.c
-    ../../Core/Src/Base/stm32f4xx_it.c
-    ../../Core/Src/Base/stm32f4xx_hal_msp.c
-    ../../Core/Src/Base/stm32f4xx_hal_timebase_tim.c
+    ../../Core/Src/gpio.c
+    ../../Core/Src/freertos.c
+    ../../Core/Src/can.c
+    ../../Core/Src/dma.c
+    ../../Core/Src/i2c.c
+    ../../Core/Src/spi.c
+    ../../Core/Src/tim.c
+    ../../Core/Src/usart.c
+    ../../Core/Src/stm32f4xx_it.c
+    ../../Core/Src/stm32f4xx_hal_msp.c
+    ../../Core/Src/stm32f4xx_hal_timebase_tim.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_can.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c
@@ -57,7 +56,7 @@ target_sources(stm32cubemx INTERFACE
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c
     ../../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c
-    ../../Core/Src/Base/system_stm32f4xx.c
+    ../../Core/Src/system_stm32f4xx.c
     ../../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
     ../../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
     ../../Middlewares/Third_Party/FreeRTOS/Source/list.c
@@ -68,8 +67,8 @@ target_sources(stm32cubemx INTERFACE
     ../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
     ../../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
     ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
-    ../../Core/Src/Base/sysmem.c
-    ../../Core/Src/Base/syscalls.c
+    ../../Core/Src/sysmem.c
+    ../../Core/Src/syscalls.c
     ../../startup_stm32f407xx.s
 )
 
