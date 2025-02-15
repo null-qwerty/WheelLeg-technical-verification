@@ -1,3 +1,5 @@
+#include "BaseControl/Controller/classicController.hpp"
+#include "BaseControl/Controller/pidController.hpp"
 #include "tasks.hpp"
 
 #include "BaseControl/Motor/DM4310.hpp"
@@ -12,49 +14,28 @@ void vTaskJointInit(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         jointInited = true;
 
+        auto initPidController = [](DM4310 &motor) -> void {
+            pidController *sl = (pidController *)motor.getSpeedLoopController();
+            pidController *al = (pidController *)motor.getAngleLoopController();
+            sl->setPidParam(0.326, 0., 0).setOutLimit(9.8, -9.8).init();
+            al->setPidParam(30., 0.001, 15).setOutLimit(30, -30).init();
+        };
+
         leftFrontJoint.init();
-        leftFrontJoint.getSpeedLoopController()
-            .setPidParam(0.326, 0., 0)
-            .setOutLimit(9.8, -9.8)
-            .init();
-        leftFrontJoint.getAngleLoopController()
-            .setPidParam(30., 0.001, 15)
-            .setOutLimit(30, -30)
-            .init();
-        leftFrontJoint.getTargetState().position = 1.0;
+        initPidController(leftFrontJoint);
+        // leftFrontJoint.getTargetState().position = 1.0;
         osDelay(1);
         leftBackJoint.init();
-        leftBackJoint.getSpeedLoopController()
-            .setPidParam(0.326, 0., 0)
-            .setOutLimit(9.8, -9.8)
-            .init();
-        leftBackJoint.getAngleLoopController()
-            .setPidParam(30., 0.001, 15)
-            .setOutLimit(30, -30)
-            .init();
-        leftBackJoint.getTargetState().position = 1.0;
+        initPidController(leftBackJoint);
+        // leftBackJoint.getTargetState().position = 1.0;
         osDelay(1);
         rightFrontJoint.init();
-        rightFrontJoint.getSpeedLoopController()
-            .setPidParam(0.326, 0., 0)
-            .setOutLimit(9.8, -9.8)
-            .init();
-        rightFrontJoint.getAngleLoopController()
-            .setPidParam(30., 0.001, 15)
-            .setOutLimit(30, -30)
-            .init();
-        rightFrontJoint.getTargetState().position = 1.0;
+        initPidController(rightFrontJoint);
+        // rightFrontJoint.getTargetState().position = 1.0;
         osDelay(1);
         rightBackJoint.init();
-        rightBackJoint.getSpeedLoopController()
-            .setPidParam(0.326, 0., 0)
-            .setOutLimit(9.8, -9.8)
-            .init();
-        rightBackJoint.getAngleLoopController()
-            .setPidParam(30., 0.001, 15)
-            .setOutLimit(30, -30)
-            .init();
-        rightBackJoint.getTargetState().position = 1.0;
+        initPidController(rightBackJoint);
+        // rightBackJoint.getTargetState().position = 1.0;
     }
     vTaskDelete(jointInitTaskHandle);
 }

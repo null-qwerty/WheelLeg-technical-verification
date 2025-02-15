@@ -1,6 +1,8 @@
+#include "BaseControl/Controller/adrcController.hpp"
 #include "tasks.hpp"
 
 #include "BaseControl/Motor/RM3508.hpp"
+#include "BaseControl/Controller/pidController.hpp"
 
 void vTaskWheelReceive(void *pvParameters)
 {
@@ -25,16 +27,15 @@ void vTaskWheelReceive(void *pvParameters)
     vTaskDelete(wheelReceiveTaskHandle);
 }
 
+pidController lwslc(20., 0.1, 1.2, 14000, -14000);
+pidController rwslc(20., 0.1, 1.2, 14000, -14000);
+
 void vTaskWheelControl(void *pvParameters)
 {
     leftWheel.init();
     rightWheel.init();
-    leftWheel.getSpeedLoopController()
-        .setPidParam(20., 0.1, 1.2)
-        .setOutLimit(14000, -14000);
-    rightWheel.getSpeedLoopController()
-        .setPidParam(20., 0.1, 1.2)
-        .setOutLimit(14000, -14000);
+    leftWheel.getSpeedLoopController() = &lwslc;
+    rightWheel.getSpeedLoopController() = &rwslc;
 
     while (1) {
         // 接收从其他任务发出的信号量
@@ -93,8 +94,7 @@ CAN_FilterTypeDef wheelCanfilter = { .FilterIdHigh = 0x0000,
                                      .SlaveStartFilterBank = 14 };
 CAN wheelConnectivity = CAN(&hcan2, wheelCanfilter);
 
-// TODO pid 调参, 使用的 TI 的开源 pid，计算方式见 pidController::Calculate()
-// TODO 算法的微分部分似乎会造成高频震荡且微分输出值存在爆炸的风险，需查阅资料
-// TODO（似乎解决，参考 pidController::Calculate()）
+// pid 调参, 使用的 TI 的开源 pid，计算方式见 pidController::Calculate()
+// 算法的微分部分似乎会造成高频震荡且微分输出值存在爆炸的风险，需查阅资料（解决，参考pidController::Calculate()）
 RM3508 leftWheel = RM3508(wheelConnectivity, 2, 0x202, LEFT_MOTOR_CLOCKWISE);
 RM3508 rightWheel = RM3508(wheelConnectivity, 1, 0x201, RIGHT_MOTOR_CLOCKWISE);
