@@ -16,6 +16,7 @@ void vTaskReadDbus(void *pvParameters)
             dbus.decodeDBUSMessage();
         }
 
+        // 控制轮毂电机速度
         if (xSemaphoreTake(wheelControlMutex, 1)) {
             // 前进
             leftWheel.getTargetState().velocity =
@@ -31,8 +32,6 @@ void vTaskReadDbus(void *pvParameters)
             xSemaphoreGive(wheelControlMutex);
         }
 
-        // 向轮毂控制任务发出信号量，任务之间使用 xTaskNotifyGive()
-        // xTaskNotifyGive(wheelControlTaskHandle);
         // 向关节控制任务发出信号量
         if (!jointInited && dbus.getDBUSData().rc.s2 == 3)
             xTaskNotifyGive(jointInitTaskHandle);
@@ -49,4 +48,4 @@ xTaskHandle readDbusTaskHandle;
 
 SemaphoreHandle_t wheelControlMutex;
 
-DBUS dbus(&huart3, DBUS::RX);
+DBUS dbus(&huart3, DBUS::dmaOption::RX);
