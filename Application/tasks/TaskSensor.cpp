@@ -17,7 +17,7 @@ void vTaskSensor(void *pvParameters)
     imuData = (BMI088::Data_t *)imu.getData();
 
     TickType_t xLastWakeTime;
-    TickType_t xFrequency = pdMS_TO_TICKS(5);
+    TickType_t xFrequency = pdMS_TO_TICKS(1);
     xLastWakeTime = xTaskGetTickCount();
     while (1) {
         imu.getData();
@@ -40,6 +40,6 @@ void vTaskSensor(void *pvParameters)
 
 xTaskHandle sensorTaskHandle;
 
-SPI imuSPI = SPI(&hspi1);
+SPI imuSPI = SPI(&hspi1, SPI::dmaOption::RX_TX);
 BMI088 imu(imuSPI);
 BMI088::Data_t *imuData;

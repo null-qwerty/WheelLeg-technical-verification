@@ -19,7 +19,6 @@ void WheelLegTasksInit(void)
     //             osPriorityAboveNormal, &jointInitTaskHandle);
     // xTaskCreate(vTaskJointDeinit, "jointDeinitTask", 128 * 2, NULL,
     //             osPriorityAboveNormal, &jointDeinitTaskHandle);
-    // xTaskCreate(vTaskSensor, "sensorTask", 128 * 4, NULL,
-    // osPriorityAboveNormal,
-    //             &sensorTaskHandle);
+    xTaskCreate(vTaskSensor, "sensorTask", 128 * 4, NULL, osPriorityAboveNormal,
+                &sensorTaskHandle);
 }
