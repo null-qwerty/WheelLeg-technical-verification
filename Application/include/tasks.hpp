@@ -85,6 +85,14 @@ __weak void vTaskJointControl(void *pvParameters);
  */
 __weak void vTaskSensor(void *pvParameters);
 
+/**
+ * @brief 传感器温度补偿
+ *
+ * @param pvParameters 任务参数，未使用
+ * @note 由传感器数据处理任务触发，理论频率 1000Hz。 (osPriorityAboveNormal)
+ */
+__weak void vTaskTemperatureHold(void *pvParameters);
+
 extern xTaskHandle xTaskLED_GHandle;
 
 extern xTaskHandle wheelReceiveTaskHandle;
@@ -97,6 +105,7 @@ extern xTaskHandle jointDeinitTaskHandle;
 extern xTaskHandle jointControlTaskHandle;
 
 extern xTaskHandle sensorTaskHandle;
+extern xTaskHandle temperatureHoldTaskHandle;
 
 extern SemaphoreHandle_t wheelControlMutex;
 

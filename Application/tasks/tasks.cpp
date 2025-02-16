@@ -21,4 +21,6 @@ void WheelLegTasksInit(void)
     //             osPriorityAboveNormal, &jointDeinitTaskHandle);
     xTaskCreate(vTaskSensor, "sensorTask", 128 * 4, NULL, osPriorityAboveNormal,
                 &sensorTaskHandle);
+    xTaskCreate(vTaskTemperatureHold, "temperatureHoldTask", 128 * 2, NULL,
+                osPriorityAboveNormal, &temperatureHoldTaskHandle);
 }
